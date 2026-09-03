@@ -180,9 +180,11 @@ describe('web-client against real core-ts servers', () => {
     const e = await up({ adapter: { importFile: () => new Promise(() => undefined), isProjectOpen: () => true } });
     const { connection } = track(await connectEngine('cocos', baseOpts()));
     const pending = send(connection, { name: 'slow.glb', bytes: bytesOf(8, 1).buffer, kind: 'model3d' }, () => undefined);
+    // 先挂上错误处理再停服务端：拒绝发生在 stop() 内部，若等 stop 返回后才 await 会留下一个短暂无人接手的 rejection
+    const outcome = asError(pending);
     await sleep(100);
     await e.server.stop();
-    expect((await asError(pending)).code).toBe('DISCONNECTED');
+    expect((await outcome).code).toBe('DISCONNECTED');
     expect(connection.busy).toBe(false);
   });
 
