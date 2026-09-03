@@ -1,10 +1,11 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { ENGINES, getEngine } from '../src/engines.js';
+import { CLIENT_VERSION, ENGINES, getEngine } from '../src/engines.js';
 import { compareSemver, isVersionAtLeast } from '../src/semver.js';
 import { sha256Hex } from '../src/sha256.js';
 import { LNA_EXPLAINED_KEY, explainLnaDenied, hasSeenLnaExplainer, isChromium142Plus, isSafari, markLnaExplained, supportsBridge } from '../src/lna.js';
 
+const HEADLESS_147 = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36';
 const CHROME_141 = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
 const CHROME_142 = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.7444.59 Safari/537.36';
 const EDGE_143 = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0';
@@ -14,7 +15,7 @@ const FIREFOX = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.5; rv:128.0) Gecko/20
 describe('engines registry', () => {
   it('lists five engines with the fixed port ranges; only cocos and unity are supported', () => {
     expect(ENGINES.map((e) => e.key)).toEqual(['cocos', 'unity', 'godot', 'unreal', 'blender']);
-    expect(getEngine('cocos')).toMatchObject({ portRange: [41700, 41719], supported: true, pluginVersion: '0.1.0', minPluginVersion: '0.1.0' });
+    expect(getEngine('cocos')).toMatchObject({ portRange: [41700, 41719], supported: true, pluginVersion: CLIENT_VERSION, minPluginVersion: '0.1.0' });
     expect(getEngine('unity')).toMatchObject({ portRange: [41720, 41739], supported: true });
     expect(getEngine('godot')).toMatchObject({ portRange: [41740, 41759], supported: false });
     expect(getEngine('unreal')).toMatchObject({ portRange: [41760, 41779], supported: false });
@@ -58,6 +59,9 @@ describe('lna helpers', () => {
     expect(isSafari(CHROME_142)).toBe(false);
     expect(isSafari(EDGE_143)).toBe(false);
     expect(isSafari(FIREFOX)).toBe(false);
+    // 无头 Chrome（自动化 / 端到端）不是 Safari，也算 142+
+    expect(isSafari(HEADLESS_147)).toBe(false);
+    expect(isChromium142Plus(HEADLESS_147)).toBe(true);
   });
 
   it('supportsBridge rejects Safari and a missing WebSocket global', () => {

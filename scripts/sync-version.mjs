@@ -39,6 +39,22 @@ for (const rel of manifests) {
   changed += 1;
 }
 
+// Cocos 扩展精确钉住内核版本（打进 zip 的就是这一份）；不跟着走的话 npm 会去 registry 找一个不存在的版本而失败。
+{
+  const rel = 'packages/cocos/package.json';
+  const file = join(root, rel);
+  if (existsSync(file)) {
+    const raw = readFileSync(file, 'utf8');
+    const re = /("@rezonalab\/engine-bridge-core"\s*:\s*")([^"]*)(")/;
+    const m = re.exec(raw);
+    if (m && m[2] !== version) {
+      writeFileSync(file, raw.replace(re, `$1${version}$3`));
+      console.log(`[sync-version] set  ${rel} 内核依赖: ${m[2]} → ${version}`);
+      changed += 1;
+    }
+  }
+}
+
 // web-client 把插件版本内置在 engines.ts 里（pluginVersion 字面量）；minPluginVersion 是兼容下限，不跟随发布号。
 const enginesFile = join(root, 'packages/web-client/src/engines.ts');
 if (existsSync(enginesFile)) {

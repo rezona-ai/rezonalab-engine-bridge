@@ -1,6 +1,6 @@
 {
   "name": "@rezonalab/engine-bridge-web",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Browser-side client of the Rezona Engine Bridge: probe local engine plugins, keep one live connection, stream assets chunk by chunk.",
   "license": "MIT",
   "type": "module",
