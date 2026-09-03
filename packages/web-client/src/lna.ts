@@ -6,15 +6,18 @@
 
 export const LNA_EXPLAINED_KEY = 'rezona-bridge:lna-explained';
 
-/** Chrome / Edge / 其它 Chromium 皮肤都带 `Chrome/<major>`；Chromium 原生构建带 `Chromium/`。 */
+/**
+ * Chrome / Edge / 其它 Chromium 皮肤都带 `Chrome/<major>`；Chromium 原生构建带 `Chromium/`。
+ * 前面不加 \b：无头 Chrome 的 UA 是 `HeadlessChrome/<major>`，加了词边界就认不出来（Playwright 端到端里实测把它判成了 Safari）。
+ */
 export function isChromium142Plus(userAgent: string): boolean {
-  const m = /\bChrom(?:e|ium)\/(\d+)/.exec(userAgent);
+  const m = /Chrom(?:e|ium)\/(\d+)/.exec(userAgent);
   return m !== null && Number(m[1]) >= 142;
 }
 
 /** 真 Safari：有 `Safari/` 又不是任何 Chromium 皮肤 / Android WebView / iOS 上的 Chrome、Firefox。 */
 export function isSafari(userAgent: string): boolean {
-  return /\bSafari\//.test(userAgent) && !/\b(?:Chrom(?:e|ium)|Edg|OPR|CriOS|FxiOS|Android)\b/.test(userAgent);
+  return /\bSafari\//.test(userAgent) && !/(?:Chrom(?:e|ium)|Edg|OPR|CriOS|FxiOS|Android)\b/.test(userAgent);
 }
 
 export interface BrowserEnv {
