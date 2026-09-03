@@ -1,0 +1,36 @@
+<section class="rb-panel">
+  <header class="rb-head">
+    <span id="state-badge" class="rb-badge" data-state="stopped">__STATE_STOPPED__</span>
+    <span class="rb-port"><span class="rb-label">__PORT__</span> <span id="port" class="rb-mono">-</span></span>
+    <ui-button id="toggle" class="rb-toggle">__START__</ui-button>
+  </header>
+
+  <section class="rb-card">
+    <div class="rb-row"><span class="rb-label">__PROJECT__</span><span id="project" class="rb-value">-</span></div>
+    <div class="rb-row"><span class="rb-label">__SAVE_DIR__</span><span class="rb-value rb-mono">assets/RezonaAssets</span></div>
+    <div class="rb-row"><span class="rb-label">__CURRENT_FILE__</span><span id="current-file" class="rb-value rb-mono">-</span></div>
+    <div class="rb-row rb-progress-row">
+      <ui-progress id="progress" value="0"></ui-progress>
+      <span id="percent" class="rb-mono">0%</span>
+    </div>
+    <div id="error" class="rb-error" hidden></div>
+  </section>
+
+  <section class="rb-card rb-logs-card">
+    <div class="rb-logs-head">
+      <span class="rb-title">__LOGS__</span>
+      <ui-button id="clear-logs" size="small">__CLEAR_LOGS__</ui-button>
+    </div>
+    <pre id="logs" class="rb-logs"></pre>
+  </section>
+
+  <details class="rb-card rb-advanced">
+    <summary>__ADVANCED__</summary>
+    <p class="rb-hint">__EXTRA_ORIGINS_HINT__</p>
+    <ui-textarea id="extra-origins" placeholder="http://localhost:5173"></ui-textarea>
+    <div class="rb-advanced-actions">
+      <ui-button id="save-origins" size="small">__SAVE__</ui-button>
+    </div>
+    <p class="rb-hint"><span class="rb-label">__ALLOWLIST__</span> <span id="allowlist" class="rb-mono"></span></p>
+  </details>
+</section>

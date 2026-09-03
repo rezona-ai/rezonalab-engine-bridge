@@ -1,0 +1,56 @@
+{
+  "package_version": 2,
+  "name": "rezona-bridge",
+  "version": "0.1.0",
+  "title": "Rezona Bridge",
+  "description": "i18n:rezona-bridge.description",
+  "author": "Rezona Lab",
+  "license": "MIT",
+  "editor": ">=3.8.5",
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "build:zip": "node scripts/build-zip.mjs",
+    "test": "vitest run --dir test"
+  },
+  "dependencies": {
+    "@rezonalab/engine-bridge-core": "0.1.0"
+  },
+  "panels": {
+    "default": {
+      "title": "Rezona Bridge",
+      "type": "dockable",
+      "main": "dist/panels/default",
+      "size": {
+        "min-width": 320,
+        "min-height": 360,
+        "width": 360,
+        "height": 520
+      }
+    }
+  },
+  "contributions": {
+    "menu": [
+      {
+        "path": "i18n:menu.extension",
+        "label": "Rezona Bridge",
+        "message": "open-panel"
+      }
+    ],
+    "messages": {
+      "open-panel": { "methods": ["openPanel"] },
+      "start-server": { "methods": ["startServer"] },
+      "stop-server": { "methods": ["stopServer"] },
+      "query-state": { "methods": ["queryState"] },
+      "clear-logs": { "methods": ["clearLogs"] },
+      "set-extra-origins": { "methods": ["setExtraOrigins"] },
+      "rezona-bridge:state": { "methods": ["default.onState"] }
+    },
+    "profile": {
+      "editor": {
+        "autoStart": { "default": true },
+        "extraOrigins": { "default": [] }
+      }
+    }
+  }
+}
