@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.tsbuildinfo
+reference/
+tmp-project/
+.DS_Store
+packages/unity/Tests/Fixtures/
