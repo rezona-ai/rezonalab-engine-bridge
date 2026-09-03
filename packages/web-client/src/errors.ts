@@ -1,4 +1,4 @@
-import type { ErrorCode } from '@rezonalab/engine-bridge-core';
+import type { ErrorCode } from './protocol-types.js';
 
 /**
  * 客户端侧错误码：一部分是浏览器/连接层自己判出来的（NO_ENGINE、LNA_*、BUSY…），

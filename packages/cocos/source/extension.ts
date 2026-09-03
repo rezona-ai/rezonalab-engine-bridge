@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { createBridgeServer, PortsExhaustedError, type BridgeServer, type BridgeServerConfig, type LogEntry, type ServerSnapshot } from '@rezonalab/engine-bridge-core';
 import { CocosAdapter } from './adapter';
 import { COCOS_PORT_RANGE, PACKAGE_NAME, buildServerConfig, normalizeExtraOrigins, portsExhaustedMessage, resolveAutoStart } from './assemble';
@@ -100,7 +101,8 @@ export function createExtension(deps: ExtensionDeps): Extension {
 
   const start = async () => {
     if (server) return;
-    const assetsRoot = `${editor.Project.path}/assets`;
+    // 与 buildServerConfig 同一算法（path.join），避免两处各拼一份路径
+    const assetsRoot = join(editor.Project.path, 'assets');
     const adapter = new CocosAdapter(assetsRoot, { message: editor.Message, log: (m) => console.log(`[${PACKAGE_NAME}] ${m}`) });
     const config = buildServerConfig(
       { projectPath: editor.Project.path, appVersion: editor.App.version, pluginVersion: deps.pluginVersion, extraOrigins: await readExtraOrigins() },

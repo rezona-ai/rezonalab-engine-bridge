@@ -18,4 +18,4 @@ export {
   DEFAULT_LNA_SUSPECT_MS,
 } from './connect.js';
 export { send, encodeChunk, newTransferId, type SendFile, type SendOptions, type SendProgress, type SendResult, DEFAULT_SEND_TIMEOUT_MS, DEFAULT_IMPORT_TIMEOUT_MS } from './sender.js';
-export type { AssetKind, Limits, ErrorCode } from '@rezonalab/engine-bridge-core';
+export type { AssetKind, Limits, ErrorCode, PortRange } from './protocol-types.js';

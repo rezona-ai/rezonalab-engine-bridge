@@ -206,7 +206,12 @@ describe('web-client against real core-ts servers', () => {
       });
       return sock;
     };
-    expect((await asError(connectEngine('cocos', { createSocket: instantFail, portRange: RANGE }))).code).toBe('LNA_DENIED_SUSPECTED');
+    const chrome = 'Mozilla/5.0 (Macintosh) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36';
+    expect((await asError(connectEngine('cocos', { createSocket: instantFail, portRange: RANGE, userAgent: chrome }))).code).toBe('LNA_DENIED_SUSPECTED');
+    // 非 Chromium（或无 UA）下同样的瞬间失败只是没引擎在跑
+    expect((await asError(connectEngine('cocos', { createSocket: instantFail, portRange: RANGE, userAgent: '' }))).code).toBe('NO_ENGINE');
+    // 默认选项（不覆盖 lnaSuspectMs）对着空端口段：真实 ECONNREFUSED 也必须是 NO_ENGINE
+    expect((await asError(connectEngine('cocos', { createSocket, portRange: RANGE }))).code).toBe('NO_ENGINE');
   });
 
   /** 裸 ws 服务端 stub：二进制帧一律回 chunk_ack，文本帧按 hello / 其它分发。用于 core-ts 不会产生的对端行为。 */

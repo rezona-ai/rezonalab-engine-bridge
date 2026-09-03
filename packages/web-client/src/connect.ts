@@ -1,4 +1,5 @@
-import type { HelloAckMessage, Limits, PortRange } from '@rezonalab/engine-bridge-core';
+import { isChromium142Plus } from './lna.js';
+import type { HelloAckMessage, Limits, PortRange } from './protocol-types.js';
 import { CLIENT_NAME, CLIENT_VERSION, getEngine, type EngineKey } from './engines.js';
 import { BridgeClientError } from './errors.js';
 import { isVersionAtLeast } from './semver.js';
@@ -31,6 +32,8 @@ export interface ConnectOptions {
   pingIntervalMs?: number;
   pongTimeoutMs?: number;
   lnaSuspectMs?: number;
+  /** 浏览器 UA；LNA 拒绝的判定只对 Chromium 142+ 生效，其它浏览器瞬间 error 就是普通的 ECONNREFUSED。默认取 navigator.userAgent。 */
+  userAgent?: string;
   clientVersion?: string;
   minPluginVersion?: string;
   /** 注入 socket 构造（测试用 `ws`，生产用原生 WebSocket）。 */
@@ -54,6 +57,7 @@ export interface BridgeConnection {
 }
 
 interface ResolvedOptions {
+  userAgent: string;
   probeTimeoutMs: number;
   pingIntervalMs: number;
   pongTimeoutMs: number;
@@ -69,6 +73,7 @@ function resolve(opts: ConnectOptions, minPluginVersion: string): ResolvedOption
     pingIntervalMs: opts.pingIntervalMs ?? DEFAULT_PING_INTERVAL_MS,
     pongTimeoutMs: opts.pongTimeoutMs ?? DEFAULT_PONG_TIMEOUT_MS,
     lnaSuspectMs: opts.lnaSuspectMs ?? DEFAULT_LNA_SUSPECT_MS,
+    userAgent: opts.userAgent ?? (typeof navigator !== 'undefined' ? navigator.userAgent : ''),
     clientVersion: opts.clientVersion ?? CLIENT_VERSION,
     minPluginVersion: opts.minPluginVersion ?? minPluginVersion,
     createSocket: opts.createSocket ?? defaultSocketFactory,
@@ -289,7 +294,8 @@ export async function connectEngine(key: EngineKey, opts: ConnectOptions = {}): 
     const nones = results.filter((r): r is Extract<ProbeResult, { kind: 'none' }> => r.kind === 'none');
     const allErroredFast =
       nones.length === results.length && nones.every((r) => !r.opened && r.erroredAt !== null && r.erroredAt - startedAt < resolved.lnaSuspectMs);
-    if (allErroredFast && resolved.lnaSuspectMs > 0) {
+    // 回环上被拒绝的连接本来就 ~1 ms 出错，「全部瞬间失败」在非 Chromium 142+ 上只说明没引擎在跑，不能报成权限被拒。
+    if (allErroredFast && resolved.lnaSuspectMs > 0 && isChromium142Plus(resolved.userAgent)) {
       throw new BridgeClientError('LNA_DENIED_SUSPECTED', `all ${ports.length} ports errored within ${resolved.lnaSuspectMs} ms; browser may have blocked local network access`);
     }
     throw new BridgeClientError('NO_ENGINE', `no ${engine.displayName} plugin listening on ${from}-${to}`);

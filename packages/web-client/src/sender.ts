@@ -1,4 +1,4 @@
-import type { AssetKind, ErrorCode, ImportResultMessage } from '@rezonalab/engine-bridge-core';
+import type { AssetKind, ErrorCode, ImportResultMessage } from './protocol-types.js';
 import { LiveConnection, type BridgeConnection } from './connect.js';
 import { BridgeClientError, type BridgeClientErrorCode } from './errors.js';
 import { sha256Hex } from './sha256.js';

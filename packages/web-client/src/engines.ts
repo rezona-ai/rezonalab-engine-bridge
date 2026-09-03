@@ -1,4 +1,4 @@
-import type { PortRange } from '@rezonalab/engine-bridge-core';
+import type { PortRange } from './protocol-types.js';
 
 export type EngineKey = 'cocos' | 'unity' | 'godot' | 'unreal' | 'blender';
 

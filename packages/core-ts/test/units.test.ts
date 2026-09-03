@@ -202,9 +202,14 @@ describe('createBridgeServer over real ws', () => {
       else q.waiters.push(r);
     });
 
-  it('closes 4403 for a foreign origin and 4400 for a client that skips hello', async () => {
+  it('rejects a foreign origin at the handshake and closes 4400 for a client that skips hello', async () => {
     const evil = connect('https://evil.example');
-    expect(await waitClose(evil)).toBe(4403);
+    // verifyClient 在 101 之前拒绝：客户端拿到的是握手失败，而不是一条 4403 关闭帧
+    const outcome = await new Promise<string>((r) => {
+      evil.on('error', () => r('handshake-rejected'));
+      evil.on('close', (code) => r(`closed-${code}`));
+    });
+    expect(['handshake-rejected', 'closed-4403']).toContain(outcome);
     const rude = connect('https://lab.rezona.ai');
     await new Promise((r) => rude.on('open', r));
     rude.send(JSON.stringify({ type: 'ping' }));
@@ -238,6 +243,26 @@ describe('createBridgeServer over real ws', () => {
     await new Promise((r) => setTimeout(r, 100));
     expect(await fs.readdir(join(root, 'tmp'))).toEqual([]);
     expect(server.state).toBe('listening');
+  });
+
+  it('a foreign-origin probe is rejected at the handshake and never evicts the live connection', async () => {
+    const good = connect('https://lab.rezona.ai');
+    await new Promise((r) => good.on('open', r));
+    good.send(JSON.stringify({ type: 'hello', protocol: 1, client: 'test', clientVersion: '0' }));
+    expect((await nextText(good)).type).toBe('hello_ack');
+    expect(server.snapshot().connected).toBe(true);
+
+    const evil = connect('https://evil.example');
+    // verifyClient 在 101 之前拒绝：ws 客户端看到的是握手失败（error），不是 4403 关闭帧
+    const outcome = await new Promise<string>((r) => {
+      evil.on('error', () => r('handshake-rejected'));
+      evil.on('close', (code) => r(`closed-${code}`));
+    });
+    expect(outcome === 'handshake-rejected' || outcome === 'closed-4403').toBe(true);
+    await new Promise((r) => setTimeout(r, 50));
+    expect(good.readyState).toBe(good.OPEN);
+    expect(server.snapshot().connected).toBe(true);
+    good.close(1000);
   });
 
   it('a second connection while idle replaces the first with 1000', async () => {

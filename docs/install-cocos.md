@@ -8,17 +8,17 @@
 2. 打开你的 Cocos 工程，菜单 **扩展 → 扩展管理器**（Extension → Extension Manager）。
 3. 切到「项目」或「全局」页签，点右上角 **导入扩展（Import）**，选中刚下载的 zip。
 
-   ![](images/cocos-import-extension.png)
+   <!-- TODO 首次真机验收后补截图：images/cocos-import-extension.png -->
    <!-- TODO：首个正式版发布时补截图 -->
 
 4. 列表里出现 **Rezona Bridge**，把右侧开关拨到启用。
 
-   ![](images/cocos-enable-extension.png)
+   <!-- TODO 首次真机验收后补截图：images/cocos-enable-extension.png -->
    <!-- TODO：首个正式版发布时补截图 -->
 
 5. 菜单 **扩展 → Rezona Bridge** 打开面板，看到「监听中 · 端口 41700」即安装完成。
 
-   ![](images/cocos-panel-listening.png)
+   <!-- TODO 首次真机验收后补截图：images/cocos-panel-listening.png -->
    <!-- TODO：首个正式版发布时补截图 -->
 
 6. 回到 Rezona Lab 工作台，顶栏「Engine Bridge」拨开 **Cocos** 开关；Chrome 会弹一次「连接本地网络设备」询问，点允许。徽标变成「已连接 · <工程名>」后，画布卡片上的「发送至 → Cocos」就能用了。

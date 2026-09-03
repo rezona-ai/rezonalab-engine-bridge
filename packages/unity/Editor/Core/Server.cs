@@ -93,7 +93,10 @@ namespace RezonaLab.EngineBridge.Editor
                     wss.ReuseAddress = false;
                     wss.Log.Level = WebSocketSharp.LogLevel.Fatal;
                     BridgeBehavior.Owner = this;
-                    wss.AddWebSocketService<BridgeBehavior>(Protocol.WsPath);
+                    // Origin 在握手阶段（OnOpen 之前）就拒绝：非法来源连 WebSocket 都建不起来。OnOpen 里再挡一道兜底。
+                    var allowlist = _originAllowlist;
+                    // 1.0.3-rc11 只有 Func<T> creator 重载（没有 Action<T> initializer），所以在构造时就挂上 OriginValidator。
+                    wss.AddWebSocketService<BridgeBehavior>(Protocol.WsPath, () => new BridgeBehavior { OriginValidator = o => Origin.IsAllowed(o, allowlist) });
                     try
                     {
                         wss.Start();
@@ -169,6 +172,13 @@ namespace RezonaLab.EngineBridge.Editor
 
         internal void OnOpen(BridgeBehavior behavior, string origin)
         {
+            // 先验 Origin 再碰 _current：非法来源绝不能把现有合法连接踢掉（否则任意网页可反复打断桥接）。
+            if (!Origin.IsAllowed(origin, _originAllowlist))
+            {
+                Log(LogLevel.Warn, "拒绝来源 " + (origin ?? "(缺 Origin 头)"));
+                behavior.CloseWith(CloseCode.OriginRejected, "origin not allowed");
+                return;
+            }
             ConnectionHandle old = null;
             lock (_lock)
             {
@@ -297,7 +307,7 @@ namespace RezonaLab.EngineBridge.Editor
 
     /// <summary>
     /// 每连接一个实例，由 websocket-sharp 构造（无参构造），所以用静态 Owner 找回服务端。
-    /// Origin 校验放在 OnOpen 一进来（收任何帧之前）由 Session.Open 完成，不通过 4403。
+    /// Origin 校验先在握手阶段的 OriginValidator 拒绝；OnOpen 一进来（碰任何状态之前）再由 BridgeServer 复核一次，不通过 4403。
     /// </summary>
     public sealed class BridgeBehavior : WebSocketBehavior, ISessionSink
     {

@@ -23,8 +23,8 @@
 
 ## 2. Origin 校验（握手前）
 
-插件在 WebSocket 升级握手阶段读取 `Origin` 头，精确匹配（scheme + host + port）白名单；缺失或不匹配 → 直接以关闭码 **4403** 拒绝，
-**不发** `hello_ack`。默认白名单：
+插件在 WebSocket 升级握手阶段读取 `Origin` 头，精确匹配（scheme + host + port）白名单；缺失或不匹配 → **在 HTTP 101 之前拒绝升级**（浏览器侧表现为连接失败，探测把它当作「无实例」），
+**不发** `hello_ack`，也**绝不影响**已建立的合法连接。实现若在升级后才能拿到 Origin（兜底路径），则以关闭码 **4403** 关闭。默认白名单：
 
 ```
 https://lab.rezona.ai
