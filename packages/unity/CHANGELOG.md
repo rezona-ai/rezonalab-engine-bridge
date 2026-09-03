@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.2] - 2026-09-03
+
+- 修复：git URL 安装后包内一行代码都没编译——UPM 把包当只读目录，缺 `.meta` 的资产被整体忽略（`has no meta file, but it's in an immutable folder`）。现在 Unity 生成的 `.meta` 随包提交。v0.1.1 因此不可用，请装 v0.1.2。
+- `Bootstrap.PluginVersion` 跟 monorepo 版本对齐（握手里的 `pluginVersion` 之前一直报 0.1.0）。
+
 ## [0.1.0] - 2026-09-03
 
 - 首版：协议 v1 的 C# 内核移植（帧编解码、流式分块接收、心跳、Origin 白名单、端口段顺延、zip 安全解压、单客户端会话状态机）。

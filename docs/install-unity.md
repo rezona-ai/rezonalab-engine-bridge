@@ -8,7 +8,7 @@
 2. 左上角 **＋ → Add package from git URL…**，粘贴：
 
    ```
-   https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.1
+   https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.2
    ```
 
    <!-- TODO 首次真机验收后补截图：images/unity-add-git-url.png -->
@@ -27,7 +27,7 @@
 
 6. 回到 Rezona Lab 工作台，顶栏「Engine Bridge」拨开 **Unity** 开关；Chrome 会弹一次「连接本地网络设备」询问，点允许。徽标「已连接 · <工程名>」后即可在卡片上「发送至 → Unity」。
 
-升级：把 git URL 末尾的 `#v0.1.0` 换成新 tag 再添加一次即可覆盖。改脚本触发域重载时服务端会自动重建，端口不变。
+升级：把 git URL 末尾的 tag 换成新版本号 再添加一次即可覆盖。改脚本触发域重载时服务端会自动重建，端口不变。
 
 ## 窗口字段
 
