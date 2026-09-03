@@ -1,0 +1,23 @@
+'use strict';
+
+module.exports = {
+  description: '把 Rezona Lab 画布上生成的资产直接推进当前 Cocos Creator 工程。',
+  panel_title: 'Rezona Bridge',
+  state_stopped: '已停止',
+  state_listening: '监听中',
+  state_connected: '已连接',
+  state_busy: '传输中',
+  state_error: '出错',
+  port: '端口',
+  start: '启动',
+  stop: '停止',
+  project: '工程',
+  save_dir: '保存目录',
+  current_file: '当前文件',
+  logs: '日志',
+  clear_logs: '清空',
+  advanced: '高级',
+  extra_origins_hint: '额外允许连接的网页来源，一行一个（如本地开发服务器）。保存后生效。',
+  save: '保存',
+  allowlist: '当前白名单：',
+};

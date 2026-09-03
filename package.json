@@ -10,7 +10,9 @@
     "packages/web-client",
     "packages/cocos"
   ],
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "npm run build -w @rezonalab/engine-bridge-core -w @rezonalab/engine-bridge-web",
     "test": "npm run build -w @rezonalab/engine-bridge-core && vitest run",
@@ -19,11 +21,13 @@
     "dev:fake-engine": "npm run build -w @rezonalab/engine-bridge-core && node scripts/fake-engine.mjs",
     "gen:fixtures": "node protocol/scripts/gen-fixtures.mjs",
     "sync:version": "node scripts/sync-version.mjs",
-    "typecheck": "tsc -b packages/core-ts packages/web-client",
-    "lint": "eslint packages --ext .ts"
+    "typecheck": "node packages/core-ts/scripts/embed-schema.mjs && tsc -b packages/core-ts packages/web-client",
+    "lint": "eslint packages --ext .ts",
+    "break:verify": "node scripts/break-verify.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "esbuild": "^0.25.12",
     "typescript": "^5.6.0",
     "vitest": "^3.0.0"
   }

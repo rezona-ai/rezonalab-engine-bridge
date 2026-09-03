@@ -176,13 +176,40 @@ describe('createBridgeServer over real ws', () => {
     await fs.rm(root, { recursive: true, force: true });
   });
 
-  const connect = (origin?: string) => new WebSocket(`ws://127.0.0.1:${server.port}/rezona-bridge`, origin ? { origin } : {});
+  // 每条连接挂一个常驻监听 + 队列：ws 在高负载下会把 received / importing / import_result 合并在同一 tick 内连续 emit，
+  // 按需挂 once 监听会漏掉后续帧而挂死；服务端心跳 ping 一律跳过。
+  const queues = new WeakMap<WebSocket, { items: Record<string, unknown>[]; waiters: ((m: Record<string, unknown>) => void)[] }>();
+  const connect = (origin?: string) => {
+    const ws = new WebSocket(`ws://127.0.0.1:${server.port}/rezona-bridge`, origin ? { origin } : {});
+    const q = { items: [] as Record<string, unknown>[], waiters: [] as ((m: Record<string, unknown>) => void)[] };
+    queues.set(ws, q);
+    ws.on('message', (d, isBinary) => {
+      if (isBinary) return;
+      const msg = JSON.parse(d.toString()) as Record<string, unknown>;
+      if (msg.type === 'ping') return;
+      const w = q.waiters.shift();
+      if (w) w(msg);
+      else q.items.push(msg);
+    });
+    return ws;
+  };
   const waitClose = (ws: WebSocket) => new Promise<number>((r) => ws.on('close', (code) => r(code)));
-  const nextText = (ws: WebSocket) => new Promise<Record<string, unknown>>((r) => ws.once('message', (d) => r(JSON.parse(d.toString()))));
+  const nextText = (ws: WebSocket) =>
+    new Promise<Record<string, unknown>>((r) => {
+      const q = queues.get(ws)!;
+      const head = q.items.shift();
+      if (head) r(head);
+      else q.waiters.push(r);
+    });
 
-  it('closes 4403 for a foreign origin and 4400 for a client that skips hello', async () => {
+  it('rejects a foreign origin at the handshake and closes 4400 for a client that skips hello', async () => {
     const evil = connect('https://evil.example');
-    expect(await waitClose(evil)).toBe(4403);
+    // verifyClient 在 101 之前拒绝：客户端拿到的是握手失败，而不是一条 4403 关闭帧
+    const outcome = await new Promise<string>((r) => {
+      evil.on('error', () => r('handshake-rejected'));
+      evil.on('close', (code) => r(`closed-${code}`));
+    });
+    expect(['handshake-rejected', 'closed-4403']).toContain(outcome);
     const rude = connect('https://lab.rezona.ai');
     await new Promise((r) => rude.on('open', r));
     rude.send(JSON.stringify({ type: 'ping' }));
@@ -216,6 +243,26 @@ describe('createBridgeServer over real ws', () => {
     await new Promise((r) => setTimeout(r, 100));
     expect(await fs.readdir(join(root, 'tmp'))).toEqual([]);
     expect(server.state).toBe('listening');
+  });
+
+  it('a foreign-origin probe is rejected at the handshake and never evicts the live connection', async () => {
+    const good = connect('https://lab.rezona.ai');
+    await new Promise((r) => good.on('open', r));
+    good.send(JSON.stringify({ type: 'hello', protocol: 1, client: 'test', clientVersion: '0' }));
+    expect((await nextText(good)).type).toBe('hello_ack');
+    expect(server.snapshot().connected).toBe(true);
+
+    const evil = connect('https://evil.example');
+    // verifyClient 在 101 之前拒绝：ws 客户端看到的是握手失败（error），不是 4403 关闭帧
+    const outcome = await new Promise<string>((r) => {
+      evil.on('error', () => r('handshake-rejected'));
+      evil.on('close', (code) => r(`closed-${code}`));
+    });
+    expect(outcome === 'handshake-rejected' || outcome === 'closed-4403').toBe(true);
+    await new Promise((r) => setTimeout(r, 50));
+    expect(good.readyState).toBe(good.OPEN);
+    expect(server.snapshot().connected).toBe(true);
+    good.close(1000);
   });
 
   it('a second connection while idle replaces the first with 1000', async () => {

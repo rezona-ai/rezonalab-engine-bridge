@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { WebSocketServer, type WebSocket } from 'ws';
 import type { EngineAdapter } from './adapter.js';
-import { DEFAULT_ORIGIN_ALLOWLIST } from './origin.js';
+import { DEFAULT_ORIGIN_ALLOWLIST, isAllowedOrigin } from './origin.js';
 import { listenOnFirstFreePort, type PortRange } from './ports.js';
 import { Session, ensureTmpDir } from './session.js';
 import { MAX_LOG_LINES, type LogEntry, type LogLevel, type ProgressInfo, type ServerEvents, type ServerSnapshot, type ServerState } from './state.js';
@@ -94,6 +94,12 @@ export function createBridgeServer(config: BridgeServerConfig): BridgeServer {
   };
 
   const onConnection = (ws: WebSocket, origin: string | undefined) => {
+    // verifyClient 已在握手阶段拒绝过一次；这里再挡一道，保证任何路径下都不会为了一个非法来源踢掉现有合法连接。
+    if (!isAllowedOrigin(origin, originAllowlist)) {
+      log('warn', `拒绝来源 ${origin ?? '(缺 Origin 头)'}`);
+      ws.close(CloseCode.ORIGIN_REJECTED, 'origin not allowed');
+      return;
+    }
     if (current?.session.isBusy) {
       log('warn', '已有传输进行中，拒绝新连接');
       ws.close(CloseCode.BUSY, 'busy');
@@ -174,7 +180,17 @@ export function createBridgeServer(config: BridgeServerConfig): BridgeServer {
       const listened = await listenOnFirstFreePort(config.portRange);
       http = listened.server;
       port = listened.port;
-      wss = new WebSocketServer({ server: http, path: WS_PATH, maxPayload: limits.chunkBytes + 4 + 1024 + 16 });
+      // Origin 白名单必须在握手阶段（HTTP 101 之前）拒绝：非法来源连 WebSocket 都建不起来，更不可能影响现有连接。
+      wss = new WebSocketServer({
+        server: http,
+        path: WS_PATH,
+        maxPayload: limits.chunkBytes + 4 + 1024 + 16,
+        verifyClient: (info: { origin: string }) => {
+          const ok = isAllowedOrigin(info.origin || undefined, originAllowlist);
+          if (!ok) log('warn', `拒绝来源 ${info.origin || '(缺 Origin 头)'}`);
+          return ok;
+        },
+      });
       wss.on('connection', (ws, req) => onConnection(ws, req.headers.origin));
       wss.on('error', (err) => log('error', `服务端错误：${err.message}`));
       lastError = null;

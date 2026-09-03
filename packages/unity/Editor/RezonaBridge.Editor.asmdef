@@ -1,0 +1,14 @@
+{
+  "name": "RezonaBridge.Editor",
+  "rootNamespace": "RezonaLab.EngineBridge.Editor",
+  "references": [],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": ["websocket-sharp.dll"],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

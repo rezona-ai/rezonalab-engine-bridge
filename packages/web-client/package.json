@@ -1,0 +1,28 @@
+{
+  "name": "@rezonalab/engine-bridge-web",
+  "version": "0.1.0",
+  "description": "Browser-side client of the Rezona Engine Bridge: probe local engine plugins, keep one live connection, stream assets chunk by chunk.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --dir test",
+    "prepare": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}
