@@ -28,8 +28,8 @@
 
 ```
 https://lab.rezona.ai
-https://lab-stage.rezona.ai
-https://lab-dev.rezona.ai
+https://stalab.rezona.ai
+https://devlab.rezona.ai
 ```
 
 开发者可在插件面板「高级」追加（如 `http://localhost:3000`）。

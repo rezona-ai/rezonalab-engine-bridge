@@ -178,7 +178,17 @@ describe('createBridgeServer over real ws', () => {
 
   const connect = (origin?: string) => new WebSocket(`ws://127.0.0.1:${server.port}/rezona-bridge`, origin ? { origin } : {});
   const waitClose = (ws: WebSocket) => new Promise<number>((r) => ws.on('close', (code) => r(code)));
-  const nextText = (ws: WebSocket) => new Promise<Record<string, unknown>>((r) => ws.once('message', (d) => r(JSON.parse(d.toString()))));
+  // 跳过服务端心跳 ping：机器负载高时导入可能超过 15 秒，ping 会插在被等待的帧之前
+  const nextText = (ws: WebSocket) =>
+    new Promise<Record<string, unknown>>((r) => {
+      const onMsg = (d: Buffer) => {
+        const msg = JSON.parse(d.toString()) as Record<string, unknown>;
+        if (msg.type === 'ping') return;
+        ws.off('message', onMsg);
+        r(msg);
+      };
+      ws.on('message', onMsg);
+    });
 
   it('closes 4403 for a foreign origin and 4400 for a client that skips hello', async () => {
     const evil = connect('https://evil.example');

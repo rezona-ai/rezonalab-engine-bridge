@@ -1,8 +1,8 @@
 /** 默认允许的网页来源：三套 lab 环境。开发者可在插件面板追加 localhost 一类地址。 */
 export const DEFAULT_ORIGIN_ALLOWLIST: readonly string[] = [
   'https://lab.rezona.ai',
-  'https://lab-stage.rezona.ai',
-  'https://lab-dev.rezona.ai',
+  'https://stalab.rezona.ai',
+  'https://devlab.rezona.ai',
 ];
 
 /** 把 origin 规范化成 `scheme://host[:port]`（去掉默认端口与尾部斜杠，小写）；非法返回 null。 */
