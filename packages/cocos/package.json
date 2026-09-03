@@ -14,7 +14,7 @@
     "test": "vitest run --dir test"
   },
   "dependencies": {
-    "@rezonalab/engine-bridge-core": "0.1.0"
+    "@rezonalab/engine-bridge-core": "0.1.1"
   },
   "panels": {
     "default": {
