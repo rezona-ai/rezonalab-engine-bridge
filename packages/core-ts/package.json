@@ -1,0 +1,27 @@
+{
+  "name": "@rezonalab/engine-bridge-core",
+  "version": "0.1.0",
+  "description": "Engine-agnostic kernel of the Rezona Engine Bridge: framing, chunked streaming receiver, heartbeat, state machine, port allocation, origin allowlist, safe zip extraction, ws server assembly.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" } },
+  "files": ["dist", "README.md"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "prebuild": "node scripts/embed-schema.mjs",
+    "build": "tsc -p tsconfig.json",
+    "pretest": "node scripts/embed-schema.mjs",
+    "test": "vitest run --dir test"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ws": "^8.18.0",
+    "yauzl": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.5.12",
+    "@types/yauzl": "^2.10.3"
+  }
+}

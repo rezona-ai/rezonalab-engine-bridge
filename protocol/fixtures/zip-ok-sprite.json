@@ -1,0 +1,346 @@
+{
+  "name": "zip-ok-sprite",
+  "origin": "https://lab.rezona.ai",
+  "server": {
+    "limits": {
+      "chunkBytes": 16,
+      "maxFileBytes": 4096,
+      "maxChunks": 256
+    }
+  },
+  "frames": [
+    {
+      "dir": "in",
+      "text": {
+        "type": "hello",
+        "protocol": 1,
+        "client": "rezona-web",
+        "clientVersion": "1.0.0"
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_begin",
+        "transferId": "t10",
+        "fileName": "hero.zip",
+        "byteSize": 245,
+        "sha256": "b65fe3fef99d003faa9a6206dee7cb652a08c0ef1ef21326f34fa7d27e48367b",
+        "kind": "sprite",
+        "chunkBytes": 16,
+        "chunkCount": 16,
+        "meta": {
+          "itemId": "item-1",
+          "displayName": "Hero"
+        }
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 0
+        },
+        "bytesBase64": "UEsDBBQAAAgAAAAAIQD8og=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 1
+        },
+        "bytesBase64": "iJ4YAAAAGAAAAAgAAABoZQ=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 2
+        },
+        "bytesBase64": "cm8ucG5nPS+qCQwZp82YKA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 3
+        },
+        "bytesBase64": "VZVhZ0osPXZeg28rGvZQSw=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 4
+        },
+        "bytesBase64": "AwQUAAAIAAAAACEA1H6P3Q=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 5
+        },
+        "bytesBase64": "DQAAAA0AAAAJAAAAaGVybw=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 6
+        },
+        "bytesBase64": "Lmpzb257ImZyYW1lcyI6Ww=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 7
+        },
+        "bytesBase64": "XX1QSwECHgMUAAAIAAAAAA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 8
+        },
+        "bytesBase64": "IQD8ooieGAAAABgAAAAIAA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 9
+        },
+        "bytesBase64": "AAAAAAAAAAAAAKSBAAAAAA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 10
+        },
+        "bytesBase64": "aGVyby5wbmdQSwECHgMUAA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 11
+        },
+        "bytesBase64": "AAgAAAAAIQDUfo/dDQAAAA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 12
+        },
+        "bytesBase64": "DQAAAAkAAAAAAAAAAAAAAA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 13
+        },
+        "bytesBase64": "pIE+AAAAaGVyby5qc29uUA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 14
+        },
+        "bytesBase64": "SwUGAAAAAAIAAgBtAAAAcg=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t10",
+          "index": 15
+        },
+        "bytesBase64": "AAAAAAA="
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_end",
+        "transferId": "t10"
+      }
+    }
+  ],
+  "expect": {
+    "outFrames": [
+      {
+        "type": "hello_ack",
+        "protocol": 1,
+        "engine": "fake",
+        "engineVersion": "0.0.0",
+        "pluginVersion": "0.1.0",
+        "project": {
+          "name": "Fixture",
+          "id": "fixture1"
+        },
+        "limits": {
+          "chunkBytes": 16,
+          "maxFileBytes": 4096,
+          "maxChunks": 256
+        },
+        "formats": [
+          "glb",
+          "png",
+          "jpg",
+          "jpeg",
+          "webp",
+          "mp3",
+          "wav",
+          "ogg",
+          "zip"
+        ]
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 0
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 1
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 2
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 3
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 4
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 5
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 6
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 7
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 8
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 9
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 10
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 11
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 12
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 13
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 14
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t10",
+        "index": 15
+      },
+      {
+        "type": "import_progress",
+        "transferId": "t10",
+        "stage": "received"
+      },
+      {
+        "type": "import_progress",
+        "transferId": "t10",
+        "stage": "importing"
+      },
+      {
+        "type": "import_result",
+        "transferId": "t10",
+        "ok": true,
+        "savedPath": "<root>/RezonaAssets/hero"
+      }
+    ],
+    "closeCode": null,
+    "finalState": "ready",
+    "savedFileSha256": null,
+    "files": [
+      "RezonaAssets/hero/hero.json",
+      "RezonaAssets/hero/hero.png"
+    ],
+    "adapterCalls": [
+      {
+        "fileName": "hero",
+        "kind": "sprite"
+      }
+    ]
+  }
+}

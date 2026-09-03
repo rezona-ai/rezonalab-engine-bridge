@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://rezona.ai/engine-bridge/v1/chunk-header.schema.json",
+  "title": "Chunk header",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["transferId", "index"],
+  "properties": {
+    "transferId": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "index": { "type": "integer", "minimum": 0 }
+  }
+}

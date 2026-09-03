@@ -1,0 +1,36 @@
+{
+  "name": "protocol-mismatch",
+  "origin": "https://lab.rezona.ai",
+  "server": {
+    "limits": {
+      "chunkBytes": 16,
+      "maxFileBytes": 4096,
+      "maxChunks": 256
+    }
+  },
+  "frames": [
+    {
+      "dir": "in",
+      "text": {
+        "type": "hello",
+        "protocol": 2,
+        "client": "rezona-web",
+        "clientVersion": "1.0.0"
+      }
+    }
+  ],
+  "expect": {
+    "outFrames": [
+      {
+        "type": "error",
+        "code": "PROTOCOL_MISMATCH",
+        "message": "unsupported protocol 2, plugin speaks 1"
+      }
+    ],
+    "closeCode": 4426,
+    "finalState": "idle",
+    "savedFileSha256": null,
+    "files": [],
+    "adapterCalls": []
+  }
+}

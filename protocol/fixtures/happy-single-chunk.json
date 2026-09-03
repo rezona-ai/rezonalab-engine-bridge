@@ -1,0 +1,121 @@
+{
+  "name": "happy-single-chunk",
+  "origin": "https://lab.rezona.ai",
+  "server": {
+    "limits": {
+      "chunkBytes": 16,
+      "maxFileBytes": 4096,
+      "maxChunks": 256
+    }
+  },
+  "frames": [
+    {
+      "dir": "in",
+      "text": {
+        "type": "hello",
+        "protocol": 1,
+        "client": "rezona-web",
+        "clientVersion": "1.0.0"
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_begin",
+        "transferId": "t1",
+        "fileName": "hero.glb",
+        "byteSize": 10,
+        "sha256": "cb2534a80420a04241efff0b65dec56c08c274895157bc5daeba3abeaa25958d",
+        "kind": "model3d",
+        "chunkBytes": 16,
+        "chunkCount": 1,
+        "meta": {
+          "itemId": "item-1",
+          "displayName": "Hero"
+        }
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t1",
+          "index": 0
+        },
+        "bytesBase64": "PF6BtAxexo4Eow=="
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_end",
+        "transferId": "t1"
+      }
+    }
+  ],
+  "expect": {
+    "outFrames": [
+      {
+        "type": "hello_ack",
+        "protocol": 1,
+        "engine": "fake",
+        "engineVersion": "0.0.0",
+        "pluginVersion": "0.1.0",
+        "project": {
+          "name": "Fixture",
+          "id": "fixture1"
+        },
+        "limits": {
+          "chunkBytes": 16,
+          "maxFileBytes": 4096,
+          "maxChunks": 256
+        },
+        "formats": [
+          "glb",
+          "png",
+          "jpg",
+          "jpeg",
+          "webp",
+          "mp3",
+          "wav",
+          "ogg",
+          "zip"
+        ]
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t1",
+        "index": 0
+      },
+      {
+        "type": "import_progress",
+        "transferId": "t1",
+        "stage": "received"
+      },
+      {
+        "type": "import_progress",
+        "transferId": "t1",
+        "stage": "importing"
+      },
+      {
+        "type": "import_result",
+        "transferId": "t1",
+        "ok": true,
+        "savedPath": "<root>/RezonaAssets/hero.glb",
+        "sceneNode": "Hero"
+      }
+    ],
+    "closeCode": null,
+    "finalState": "ready",
+    "savedFileSha256": "cb2534a80420a04241efff0b65dec56c08c274895157bc5daeba3abeaa25958d",
+    "files": [
+      "RezonaAssets/hero.glb"
+    ],
+    "adapterCalls": [
+      {
+        "fileName": "hero.glb",
+        "kind": "model3d"
+      }
+    ]
+  }
+}

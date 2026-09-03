@@ -1,0 +1,136 @@
+{
+  "name": "checksum-mismatch",
+  "origin": "https://lab.rezona.ai",
+  "server": {
+    "limits": {
+      "chunkBytes": 16,
+      "maxFileBytes": 4096,
+      "maxChunks": 256
+    }
+  },
+  "frames": [
+    {
+      "dir": "in",
+      "text": {
+        "type": "hello",
+        "protocol": 1,
+        "client": "rezona-web",
+        "clientVersion": "1.0.0"
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_begin",
+        "transferId": "t4",
+        "fileName": "hero.glb",
+        "byteSize": 40,
+        "sha256": "7d97b8b64954ec1cd712fc9ff8094c7e70b4656f5173e6dcef6687810711435f",
+        "kind": "model3d",
+        "chunkBytes": 16,
+        "chunkCount": 3,
+        "meta": {
+          "itemId": "item-1",
+          "displayName": "Hero"
+        }
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t4",
+          "index": 0
+        },
+        "bytesBase64": "PKSO0AycEU2Kz5x6hbHrYQ=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t4",
+          "index": 1
+        },
+        "bytesBase64": "Ul+UMUrLFIh7CGGusZqxpA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t4",
+          "index": 2
+        },
+        "bytesBase64": "Oc2UUAl1ktk="
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_end",
+        "transferId": "t4"
+      }
+    }
+  ],
+  "expect": {
+    "outFrames": [
+      {
+        "type": "hello_ack",
+        "protocol": 1,
+        "engine": "fake",
+        "engineVersion": "0.0.0",
+        "pluginVersion": "0.1.0",
+        "project": {
+          "name": "Fixture",
+          "id": "fixture1"
+        },
+        "limits": {
+          "chunkBytes": 16,
+          "maxFileBytes": 4096,
+          "maxChunks": 256
+        },
+        "formats": [
+          "glb",
+          "png",
+          "jpg",
+          "jpeg",
+          "webp",
+          "mp3",
+          "wav",
+          "ogg",
+          "zip"
+        ]
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t4",
+        "index": 0
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t4",
+        "index": 1
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t4",
+        "index": 2
+      },
+      {
+        "type": "import_result",
+        "transferId": "t4",
+        "ok": false,
+        "error": {
+          "code": "CHECKSUM_MISMATCH",
+          "message": "sha256 mismatch"
+        }
+      }
+    ],
+    "closeCode": null,
+    "finalState": "ready",
+    "savedFileSha256": null,
+    "files": [],
+    "adapterCalls": []
+  }
+}

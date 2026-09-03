@@ -1,0 +1,77 @@
+{
+  "name": "too-large-begin",
+  "origin": "https://lab.rezona.ai",
+  "server": {
+    "limits": {
+      "chunkBytes": 16,
+      "maxFileBytes": 4096,
+      "maxChunks": 256
+    }
+  },
+  "frames": [
+    {
+      "dir": "in",
+      "text": {
+        "type": "hello",
+        "protocol": 1,
+        "client": "rezona-web",
+        "clientVersion": "1.0.0"
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_begin",
+        "transferId": "t5",
+        "fileName": "huge.glb",
+        "byteSize": 5000,
+        "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "kind": "model3d",
+        "chunkBytes": 16,
+        "chunkCount": 313
+      }
+    }
+  ],
+  "expect": {
+    "outFrames": [
+      {
+        "type": "hello_ack",
+        "protocol": 1,
+        "engine": "fake",
+        "engineVersion": "0.0.0",
+        "pluginVersion": "0.1.0",
+        "project": {
+          "name": "Fixture",
+          "id": "fixture1"
+        },
+        "limits": {
+          "chunkBytes": 16,
+          "maxFileBytes": 4096,
+          "maxChunks": 256
+        },
+        "formats": [
+          "glb",
+          "png",
+          "jpg",
+          "jpeg",
+          "webp",
+          "mp3",
+          "wav",
+          "ogg",
+          "zip"
+        ]
+      },
+      {
+        "type": "error",
+        "code": "TOO_LARGE",
+        "message": "byteSize 5000 exceeds maxFileBytes 4096",
+        "transferId": "t5"
+      }
+    ],
+    "closeCode": 4413,
+    "finalState": "idle",
+    "savedFileSha256": null,
+    "files": [],
+    "adapterCalls": []
+  }
+}

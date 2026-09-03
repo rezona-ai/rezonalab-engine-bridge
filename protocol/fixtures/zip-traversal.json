@@ -1,0 +1,216 @@
+{
+  "name": "zip-traversal",
+  "origin": "https://lab.rezona.ai",
+  "server": {
+    "limits": {
+      "chunkBytes": 16,
+      "maxFileBytes": 4096,
+      "maxChunks": 256
+    }
+  },
+  "frames": [
+    {
+      "dir": "in",
+      "text": {
+        "type": "hello",
+        "protocol": 1,
+        "client": "rezona-web",
+        "clientVersion": "1.0.0"
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_begin",
+        "transferId": "t9",
+        "fileName": "hero.zip",
+        "byteSize": 124,
+        "sha256": "5ffca84e2ea2ee2edca50c2c380bd5fd25e77c3f749164aa0db075fd14bd7e3c",
+        "kind": "sprite",
+        "chunkBytes": 16,
+        "chunkCount": 8,
+        "meta": {
+          "itemId": "item-1",
+          "displayName": "Hero"
+        }
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t9",
+          "index": 0
+        },
+        "bytesBase64": "UEsDBBQAAAgAAAAAIQBSMQ=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t9",
+          "index": 1
+        },
+        "bytesBase64": "+40EAAAABAAAAAsAAAAuLg=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t9",
+          "index": 2
+        },
+        "bytesBase64": "L2V2aWwudHh0ZXZpbFBLAQ=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t9",
+          "index": 3
+        },
+        "bytesBase64": "Ah4DFAAACAAAAAAhAFIx+w=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t9",
+          "index": 4
+        },
+        "bytesBase64": "jQQAAAAEAAAACwAAAAAAAA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t9",
+          "index": 5
+        },
+        "bytesBase64": "AAAAAACkgQAAAAAuLi9ldg=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t9",
+          "index": 6
+        },
+        "bytesBase64": "aWwudHh0UEsFBgAAAAABAA=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t9",
+          "index": 7
+        },
+        "bytesBase64": "AQA5AAAALQAAAAAA"
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_end",
+        "transferId": "t9"
+      }
+    }
+  ],
+  "expect": {
+    "outFrames": [
+      {
+        "type": "hello_ack",
+        "protocol": 1,
+        "engine": "fake",
+        "engineVersion": "0.0.0",
+        "pluginVersion": "0.1.0",
+        "project": {
+          "name": "Fixture",
+          "id": "fixture1"
+        },
+        "limits": {
+          "chunkBytes": 16,
+          "maxFileBytes": 4096,
+          "maxChunks": 256
+        },
+        "formats": [
+          "glb",
+          "png",
+          "jpg",
+          "jpeg",
+          "webp",
+          "mp3",
+          "wav",
+          "ogg",
+          "zip"
+        ]
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t9",
+        "index": 0
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t9",
+        "index": 1
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t9",
+        "index": 2
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t9",
+        "index": 3
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t9",
+        "index": 4
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t9",
+        "index": 5
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t9",
+        "index": 6
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t9",
+        "index": 7
+      },
+      {
+        "type": "import_progress",
+        "transferId": "t9",
+        "stage": "received"
+      },
+      {
+        "type": "import_result",
+        "transferId": "t9",
+        "ok": false,
+        "error": {
+          "code": "ZIP_UNSAFE_ENTRY",
+          "message": "unsafe zip entry: ../evil.txt"
+        }
+      }
+    ],
+    "closeCode": null,
+    "finalState": "ready",
+    "savedFileSha256": null,
+    "files": [],
+    "adapterCalls": []
+  }
+}

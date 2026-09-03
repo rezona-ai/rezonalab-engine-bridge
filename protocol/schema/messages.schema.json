@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://rezona.ai/engine-bridge/v1/messages.schema.json",
+  "title": "Rezona Engine Bridge text messages (protocol 1)",
+  "oneOf": [
+    { "$ref": "#/definitions/hello" },
+    { "$ref": "#/definitions/hello_ack" },
+    { "$ref": "#/definitions/transfer_begin" },
+    { "$ref": "#/definitions/chunk_ack" },
+    { "$ref": "#/definitions/transfer_end" },
+    { "$ref": "#/definitions/import_progress" },
+    { "$ref": "#/definitions/import_result" },
+    { "$ref": "#/definitions/ping" },
+    { "$ref": "#/definitions/pong" },
+    { "$ref": "#/definitions/error" }
+  ],
+  "definitions": {
+    "transferId": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "kind": { "type": "string", "enum": ["model3d", "image", "audio", "sprite", "other"] },
+    "errorCode": {
+      "type": "string",
+      "enum": [
+        "CHECKSUM_MISMATCH", "ZIP_UNSAFE_ENTRY", "ZIP_TOO_MANY_ENTRIES", "ZIP_TOO_LARGE",
+        "UNSUPPORTED_FORMAT", "TOO_LARGE", "TOO_MANY_CHUNKS",
+        "IMPORT_FAILED", "IMPORT_TIMEOUT", "PROJECT_NOT_OPEN", "PROTOCOL_MISMATCH", "INTERNAL"
+      ]
+    },
+    "errorObject": {
+      "type": "object",
+      "required": ["code", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "code": { "$ref": "#/definitions/errorCode" },
+        "message": { "type": "string", "maxLength": 2000 }
+      }
+    },
+    "hello": {
+      "type": "object",
+      "required": ["type", "protocol", "client", "clientVersion"],
+      "additionalProperties": true,
+      "properties": {
+        "type": { "const": "hello" },
+        "protocol": { "type": "integer", "minimum": 1 },
+        "client": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "clientVersion": { "type": "string", "minLength": 1, "maxLength": 32 }
+      }
+    },
+    "hello_ack": {
+      "type": "object",
+      "required": ["type", "protocol", "engine", "engineVersion", "pluginVersion", "project", "limits", "formats"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "hello_ack" },
+        "protocol": { "type": "integer", "minimum": 1 },
+        "engine": { "type": "string", "minLength": 1, "maxLength": 32 },
+        "engineVersion": { "type": "string", "maxLength": 64 },
+        "pluginVersion": { "type": "string", "minLength": 1, "maxLength": 32 },
+        "project": {
+          "type": "object",
+          "required": ["name", "id"],
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string", "maxLength": 200 },
+            "id": { "type": "string", "minLength": 1, "maxLength": 64 }
+          }
+        },
+        "limits": {
+          "type": "object",
+          "required": ["chunkBytes", "maxFileBytes", "maxChunks"],
+          "additionalProperties": false,
+          "properties": {
+            "chunkBytes": { "type": "integer", "minimum": 1 },
+            "maxFileBytes": { "type": "integer", "minimum": 1 },
+            "maxChunks": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "formats": { "type": "array", "items": { "type": "string", "pattern": "^[a-z0-9]{1,8}$" } }
+      }
+    },
+    "transfer_begin": {
+      "type": "object",
+      "required": ["type", "transferId", "fileName", "byteSize", "sha256", "kind", "chunkBytes", "chunkCount"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "transfer_begin" },
+        "transferId": { "$ref": "#/definitions/transferId" },
+        "fileName": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "byteSize": { "type": "integer", "minimum": 0 },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "kind": { "$ref": "#/definitions/kind" },
+        "chunkBytes": { "type": "integer", "minimum": 1 },
+        "chunkCount": { "type": "integer", "minimum": 0 },
+        "meta": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "itemId": { "type": "string", "maxLength": 128 },
+            "displayName": { "type": "string", "maxLength": 200 }
+          }
+        }
+      }
+    },
+    "chunk_ack": {
+      "type": "object",
+      "required": ["type", "transferId", "index"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "chunk_ack" },
+        "transferId": { "$ref": "#/definitions/transferId" },
+        "index": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "transfer_end": {
+      "type": "object",
+      "required": ["type", "transferId"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "transfer_end" },
+        "transferId": { "$ref": "#/definitions/transferId" }
+      }
+    },
+    "import_progress": {
+      "type": "object",
+      "required": ["type", "transferId", "stage"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "import_progress" },
+        "transferId": { "$ref": "#/definitions/transferId" },
+        "stage": { "type": "string", "enum": ["received", "importing"] }
+      }
+    },
+    "import_result": {
+      "type": "object",
+      "required": ["type", "transferId", "ok"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "import_result" },
+        "transferId": { "$ref": "#/definitions/transferId" },
+        "ok": { "type": "boolean" },
+        "savedPath": { "type": "string", "maxLength": 1000 },
+        "sceneNode": { "type": "string", "maxLength": 200 },
+        "error": { "$ref": "#/definitions/errorObject" }
+      }
+    },
+    "ping": { "type": "object", "required": ["type"], "additionalProperties": false, "properties": { "type": { "const": "ping" } } },
+    "pong": { "type": "object", "required": ["type"], "additionalProperties": false, "properties": { "type": { "const": "pong" } } },
+    "error": {
+      "type": "object",
+      "required": ["type", "code", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "const": "error" },
+        "code": { "$ref": "#/definitions/errorCode" },
+        "message": { "type": "string", "maxLength": 2000 },
+        "transferId": { "$ref": "#/definitions/transferId" }
+      }
+    }
+  }
+}

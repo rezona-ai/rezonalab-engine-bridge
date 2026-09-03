@@ -1,0 +1,30 @@
+{
+  "name": "origin-rejected",
+  "origin": "https://evil.example",
+  "server": {
+    "limits": {
+      "chunkBytes": 16,
+      "maxFileBytes": 4096,
+      "maxChunks": 256
+    }
+  },
+  "frames": [
+    {
+      "dir": "in",
+      "text": {
+        "type": "hello",
+        "protocol": 1,
+        "client": "rezona-web",
+        "clientVersion": "1.0.0"
+      }
+    }
+  ],
+  "expect": {
+    "outFrames": [],
+    "closeCode": 4403,
+    "finalState": "idle",
+    "savedFileSha256": null,
+    "files": [],
+    "adapterCalls": []
+  }
+}

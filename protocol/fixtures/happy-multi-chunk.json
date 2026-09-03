@@ -1,0 +1,150 @@
+{
+  "name": "happy-multi-chunk",
+  "origin": "https://lab.rezona.ai",
+  "server": {
+    "limits": {
+      "chunkBytes": 16,
+      "maxFileBytes": 4096,
+      "maxChunks": 256
+    }
+  },
+  "frames": [
+    {
+      "dir": "in",
+      "text": {
+        "type": "hello",
+        "protocol": 1,
+        "client": "rezona-web",
+        "clientVersion": "1.0.0"
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_begin",
+        "transferId": "t2",
+        "fileName": "theme.mp3",
+        "byteSize": 40,
+        "sha256": "f936775692136a7b52280c95cb9b11a5695bd5a1cc37971633f20d56ec4df277",
+        "kind": "audio",
+        "chunkBytes": 16,
+        "chunkCount": 3,
+        "meta": {
+          "itemId": "item-1",
+          "displayName": "Hero"
+        }
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t2",
+          "index": 0
+        },
+        "bytesBase64": "PHUwvbceNHiGsrQbkcl2cg=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t2",
+          "index": 1
+        },
+        "bytesBase64": "A1f7a+iqvWM/Ji4lEl6EVQ=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t2",
+          "index": 2
+        },
+        "bytesBase64": "TJbJeFLQxts="
+      }
+    },
+    {
+      "dir": "in",
+      "text": {
+        "type": "transfer_end",
+        "transferId": "t2"
+      }
+    }
+  ],
+  "expect": {
+    "outFrames": [
+      {
+        "type": "hello_ack",
+        "protocol": 1,
+        "engine": "fake",
+        "engineVersion": "0.0.0",
+        "pluginVersion": "0.1.0",
+        "project": {
+          "name": "Fixture",
+          "id": "fixture1"
+        },
+        "limits": {
+          "chunkBytes": 16,
+          "maxFileBytes": 4096,
+          "maxChunks": 256
+        },
+        "formats": [
+          "glb",
+          "png",
+          "jpg",
+          "jpeg",
+          "webp",
+          "mp3",
+          "wav",
+          "ogg",
+          "zip"
+        ]
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t2",
+        "index": 0
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t2",
+        "index": 1
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t2",
+        "index": 2
+      },
+      {
+        "type": "import_progress",
+        "transferId": "t2",
+        "stage": "received"
+      },
+      {
+        "type": "import_progress",
+        "transferId": "t2",
+        "stage": "importing"
+      },
+      {
+        "type": "import_result",
+        "transferId": "t2",
+        "ok": true,
+        "savedPath": "<root>/RezonaAssets/theme.mp3"
+      }
+    ],
+    "closeCode": null,
+    "finalState": "ready",
+    "savedFileSha256": "f936775692136a7b52280c95cb9b11a5695bd5a1cc37971633f20d56ec4df277",
+    "files": [
+      "RezonaAssets/theme.mp3"
+    ],
+    "adapterCalls": [
+      {
+        "fileName": "theme.mp3",
+        "kind": "audio"
+      }
+    ]
+  }
+}

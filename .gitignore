@@ -5,3 +5,4 @@ reference/
 tmp-project/
 .DS_Store
 packages/unity/Tests/Fixtures/
+packages/core-ts/src/generated/
