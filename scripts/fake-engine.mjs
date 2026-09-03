@@ -5,9 +5,13 @@
 // 内核已经把文件落在 <project-dir>/assets/RezonaAssets/ 下；这里的适配层只打日志、不再写任何东西。
 
 import { createHash } from 'node:crypto';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { basename, join, relative, resolve } from 'node:path';
 import { createBridgeServer, DEFAULT_ORIGIN_ALLOWLIST, PORT_RANGES, PROTOCOL_VERSION, listenOnFirstFreePort } from '@rezonalab/engine-bridge-core';
+
+// 版本读根 package.json 而不是 npm_package_version：直接 `node scripts/fake-engine.mjs` 起时后者不存在，会报成 0.0.0，
+// 网页端据此判定「插件需升级」并拒绝连接——看起来像联调失败，其实只是启动方式不同。
+const PLUGIN_VERSION = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 
 const HELP = `fake-engine — Rezona Engine Bridge 假引擎
 
@@ -131,7 +135,7 @@ async function main() {
     const server = createBridgeServer({
       engine: opts.engine,
       engineVersion: '0.0.0-fake',
-      pluginVersion: process.env.npm_package_version ?? '0.0.0',
+      pluginVersion: PLUGIN_VERSION,
       project,
       assetsRoot,
       portRange,
