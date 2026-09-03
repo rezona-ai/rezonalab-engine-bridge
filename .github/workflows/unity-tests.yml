@@ -1,0 +1,39 @@
+# Unity 夹具测试（EditMode）。GitHub 托管 runner 没有 Unity，也没有许可证，所以：
+#   1. 只允许手动触发（workflow_dispatch）；
+#   2. 必须跑在装好 Unity 2022.3 LTS、且已激活许可证的自托管 runner 上，runner 需打标签 `self-hosted` + `unity`；
+#   3. `scripts/test-unity.mjs` 通过 UNITY_PATH 找编辑器可执行文件（未设则按平台默认路径探测）。
+# 没有这样的 runner 时，此 workflow 会一直排队，不会成功——请在本机跑 `npm run test:unity`。
+name: Unity tests (manual, self-hosted)
+
+on:
+  workflow_dispatch:
+    inputs:
+      unity_path:
+        description: Unity 编辑器可执行文件路径（留空则由 scripts/test-unity.mjs 自行探测）
+        required: false
+        default: ''
+
+jobs:
+  unity-editmode:
+    name: FixtureTests (EditMode) on self-hosted Unity runner
+    runs-on: [self-hosted, unity]
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Run Unity EditMode fixture tests
+        env:
+          UNITY_PATH: ${{ inputs.unity_path }}
+        run: npm run test:unity
+      - name: Upload Unity test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unity-test-results
+          path: |
+            .unity-test-project/**/*.xml
+            .unity-test-project/**/*.log
+          if-no-files-found: ignore

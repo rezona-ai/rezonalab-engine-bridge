@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    name: typecheck · test · build:cocos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      # build:cocos 用系统 zip 打包（ubuntu-latest 自带）
+      - run: npm run build:cocos
+      - name: Upload Cocos extension zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: rezona-bridge-cocos
+          path: dist/*.zip
+          if-no-files-found: error
+
+  break-verify:
+    name: 故意破坏验证（sha256 / Origin / zip 各注掉一次必须变红）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build -w @rezonalab/engine-bridge-core
+      - run: npm run break:verify
