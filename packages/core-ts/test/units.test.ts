@@ -176,18 +176,30 @@ describe('createBridgeServer over real ws', () => {
     await fs.rm(root, { recursive: true, force: true });
   });
 
-  const connect = (origin?: string) => new WebSocket(`ws://127.0.0.1:${server.port}/rezona-bridge`, origin ? { origin } : {});
+  // 每条连接挂一个常驻监听 + 队列：ws 在高负载下会把 received / importing / import_result 合并在同一 tick 内连续 emit，
+  // 按需挂 once 监听会漏掉后续帧而挂死；服务端心跳 ping 一律跳过。
+  const queues = new WeakMap<WebSocket, { items: Record<string, unknown>[]; waiters: ((m: Record<string, unknown>) => void)[] }>();
+  const connect = (origin?: string) => {
+    const ws = new WebSocket(`ws://127.0.0.1:${server.port}/rezona-bridge`, origin ? { origin } : {});
+    const q = { items: [] as Record<string, unknown>[], waiters: [] as ((m: Record<string, unknown>) => void)[] };
+    queues.set(ws, q);
+    ws.on('message', (d, isBinary) => {
+      if (isBinary) return;
+      const msg = JSON.parse(d.toString()) as Record<string, unknown>;
+      if (msg.type === 'ping') return;
+      const w = q.waiters.shift();
+      if (w) w(msg);
+      else q.items.push(msg);
+    });
+    return ws;
+  };
   const waitClose = (ws: WebSocket) => new Promise<number>((r) => ws.on('close', (code) => r(code)));
-  // 跳过服务端心跳 ping：机器负载高时导入可能超过 15 秒，ping 会插在被等待的帧之前
   const nextText = (ws: WebSocket) =>
     new Promise<Record<string, unknown>>((r) => {
-      const onMsg = (d: Buffer) => {
-        const msg = JSON.parse(d.toString()) as Record<string, unknown>;
-        if (msg.type === 'ping') return;
-        ws.off('message', onMsg);
-        r(msg);
-      };
-      ws.on('message', onMsg);
+      const q = queues.get(ws)!;
+      const head = q.items.shift();
+      if (head) r(head);
+      else q.waiters.push(r);
     });
 
   it('closes 4403 for a foreign origin and 4400 for a client that skips hello', async () => {

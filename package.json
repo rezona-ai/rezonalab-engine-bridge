@@ -10,7 +10,9 @@
     "packages/web-client",
     "packages/cocos"
   ],
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "build": "npm run build -w @rezonalab/engine-bridge-core -w @rezonalab/engine-bridge-web",
     "test": "npm run build -w @rezonalab/engine-bridge-core && vitest run",
@@ -25,6 +27,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
+    "esbuild": "^0.25.12",
     "typescript": "^5.6.0",
     "vitest": "^3.0.0"
   }
