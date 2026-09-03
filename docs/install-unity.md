@@ -8,7 +8,7 @@
 2. 左上角 **＋ → Add package from git URL…**，粘贴：
 
    ```
-   https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.0
+   https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.1
    ```
 
    <!-- TODO 首次真机验收后补截图：images/unity-add-git-url.png -->
