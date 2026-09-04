@@ -1,5 +1,5 @@
 {
-  "name": "busy-second-transfer",
+  "name": "happy-video",
   "origin": "https://lab.rezona.ai",
   "server": {
     "limits": {
@@ -22,13 +22,13 @@
       "dir": "in",
       "text": {
         "type": "transfer_begin",
-        "transferId": "t7",
-        "fileName": "a.glb",
-        "byteSize": 40,
-        "sha256": "9f6db555b64a7cf5726a329fe8c28462e975ea79105cd83a8819e36581b8fb1c",
-        "kind": "model3d",
+        "transferId": "t12",
+        "fileName": "intro.mp4",
+        "byteSize": 24,
+        "sha256": "fbee1df1b232523548dee70d93598836acd363455bb24ec1c9a08c4f52c6097b",
+        "kind": "video",
         "chunkBytes": 16,
-        "chunkCount": 3,
+        "chunkCount": 2,
         "meta": {
           "itemId": "item-1",
           "displayName": "Hero"
@@ -39,27 +39,27 @@
       "dir": "in",
       "binary": {
         "header": {
-          "transferId": "t7",
+          "transferId": "t12",
           "index": 0
         },
-        "bytesBase64": "Pemc7QzbXA0R+/mIc4yaxw=="
+        "bytesBase64": "PV0JHGGYhKKcRT30Vk6/Gw=="
+      }
+    },
+    {
+      "dir": "in",
+      "binary": {
+        "header": {
+          "transferId": "t12",
+          "index": 1
+        },
+        "bytesBase64": "i373SdFLcRs="
       }
     },
     {
       "dir": "in",
       "text": {
-        "type": "transfer_begin",
-        "transferId": "t7b",
-        "fileName": "b.glb",
-        "byteSize": 40,
-        "sha256": "9f6db555b64a7cf5726a329fe8c28462e975ea79105cd83a8819e36581b8fb1c",
-        "kind": "model3d",
-        "chunkBytes": 16,
-        "chunkCount": 3,
-        "meta": {
-          "itemId": "item-1",
-          "displayName": "Hero"
-        }
+        "type": "transfer_end",
+        "transferId": "t12"
       }
     }
   ],
@@ -97,14 +97,42 @@
       },
       {
         "type": "chunk_ack",
-        "transferId": "t7",
+        "transferId": "t12",
         "index": 0
+      },
+      {
+        "type": "chunk_ack",
+        "transferId": "t12",
+        "index": 1
+      },
+      {
+        "type": "import_progress",
+        "transferId": "t12",
+        "stage": "received"
+      },
+      {
+        "type": "import_progress",
+        "transferId": "t12",
+        "stage": "importing"
+      },
+      {
+        "type": "import_result",
+        "transferId": "t12",
+        "ok": true,
+        "savedPath": "<root>/RezonaAssets/intro.mp4"
       }
     ],
-    "closeCode": 4409,
-    "finalState": "idle",
-    "savedFileSha256": null,
-    "files": [],
-    "adapterCalls": []
+    "closeCode": null,
+    "finalState": "ready",
+    "savedFileSha256": "fbee1df1b232523548dee70d93598836acd363455bb24ec1c9a08c4f52c6097b",
+    "files": [
+      "RezonaAssets/intro.mp4"
+    ],
+    "adapterCalls": [
+      {
+        "fileName": "intro.mp4",
+        "kind": "video"
+      }
+    ]
   }
 }

@@ -36,7 +36,8 @@ namespace RezonaLab.EngineBridge.Editor
             var relPath = ToAssetPath(absPath);
             if (relPath == null) throw new BridgeException("IMPORT_FAILED", "path is outside Assets/: " + absPath);
 
-            if (meta.Kind == "model3d" && !IsGltfFastPresent())
+            var isGltf = relPath.EndsWith(".glb", StringComparison.OrdinalIgnoreCase) || relPath.EndsWith(".gltf", StringComparison.OrdinalIgnoreCase);
+            if (meta.Kind == "model3d" && isGltf && !IsGltfFastPresent()) // fbx 走 Unity 自带的 ModelImporter，不需要 glTFast
             {
                 GltfFastMissing?.Invoke();
                 throw new BridgeException("IMPORT_FAILED", "需要 glTFast 包（" + GltfFastPackage + "）才能导入 glb");
@@ -60,7 +61,7 @@ namespace RezonaLab.EngineBridge.Editor
             if (meta.Kind == "model3d" && !isDir)
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(relPath);
-                if (prefab == null) throw new BridgeException("IMPORT_FAILED", "glTFast 未从 " + relPath + " 产出 GameObject");
+                if (prefab == null) throw new BridgeException("IMPORT_FAILED", (isGltf ? "glTFast" : "ModelImporter") + " 未从 " + relPath + " 产出 GameObject");
                 var scene = EditorSceneManager.GetActiveScene();
                 var instance = PrefabUtility.InstantiatePrefab(prefab, scene) as GameObject;
                 if (instance == null) throw new BridgeException("IMPORT_FAILED", "无法实例化 " + relPath);

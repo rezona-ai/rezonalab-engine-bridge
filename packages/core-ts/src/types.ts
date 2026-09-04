@@ -2,7 +2,7 @@
 
 export const PROTOCOL_VERSION = 1;
 
-export type AssetKind = 'model3d' | 'image' | 'audio' | 'sprite' | 'other';
+export type AssetKind = 'model3d' | 'image' | 'audio' | 'video' | 'sprite' | 'other';
 
 export interface Limits {
   chunkBytes: number;
@@ -16,7 +16,8 @@ export const DEFAULT_LIMITS: Limits = {
   maxChunks: 128,
 };
 
-export const DEFAULT_FORMATS: readonly string[] = ['glb', 'png', 'jpg', 'jpeg', 'webp', 'mp3', 'wav', 'ogg', 'zip'];
+// fbx 今天没人会发（生成端只出 glb），但两端引擎都原生导入；先放进白名单，生成端切格式时插件不必再发版。
+export const DEFAULT_FORMATS: readonly string[] = ['glb', 'fbx', 'png', 'jpg', 'jpeg', 'webp', 'mp3', 'wav', 'ogg', 'mp4', 'webm', 'zip'];
 
 export type ErrorCode =
   | 'CHECKSUM_MISMATCH'

@@ -16,7 +16,7 @@
   ],
   "definitions": {
     "transferId": { "type": "string", "minLength": 1, "maxLength": 40 },
-    "kind": { "type": "string", "enum": ["model3d", "image", "audio", "sprite", "other"] },
+    "kind": { "type": "string", "enum": ["model3d", "image", "audio", "video", "sprite", "other"] },
     "errorCode": {
       "type": "string",
       "enum": [

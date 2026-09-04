@@ -13,9 +13,9 @@ namespace RezonaLab.EngineBridge.Editor
         public const int MaxHeaderBytes = 1024;
         public const int ImportTimeoutMs = 30_000;
 
-        public static readonly string[] DefaultFormats = { "glb", "png", "jpg", "jpeg", "webp", "mp3", "wav", "ogg", "zip" };
+        public static readonly string[] DefaultFormats = { "glb", "fbx", "png", "jpg", "jpeg", "webp", "mp3", "wav", "ogg", "mp4", "webm", "zip" };
 
-        public static readonly string[] AssetKinds = { "model3d", "image", "audio", "sprite", "other" };
+        public static readonly string[] AssetKinds = { "model3d", "image", "audio", "video", "sprite", "other" };
 
         public static readonly string[] ErrorCodes =
         {

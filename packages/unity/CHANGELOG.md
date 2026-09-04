@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- 新增 `video` 类型（mp4 / webm）：只导入不实例化；`formats` 加 `fbx`（走 Unity 自带 ModelImporter，不需要 glTFast）。glTFast 缺包检查只对 glb / gltf 生效。
+
 ## [0.1.3] - 2026-09-04
 
 - 窗口重做：品牌区（R 标 + 名称 + 版本 + 状态胶囊 + 启停）、连接卡片、级别着色日志、页脚文档链接；文案跟随编辑器语言（zh/en）。

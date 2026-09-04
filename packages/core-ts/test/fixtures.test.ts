@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { loadFixtures, runFixture, type Fixture } from '../src/fixtures-runner.js';
 
 const FIXTURES_DIR = join(__dirname, '..', '..', '..', 'protocol', 'fixtures');
-const EXPECTED_FIXTURE_COUNT = 11;
+const EXPECTED_FIXTURE_COUNT = 12;
 
 // 夹具是 TS 内核与 C# 移植的唯一一致性保障；数量断言防止漏跑（新增夹具必须同时改这里与 Unity 测试）。
 describe('protocol fixtures', () => {

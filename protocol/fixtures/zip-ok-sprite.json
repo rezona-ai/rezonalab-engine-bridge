@@ -222,6 +222,7 @@
         },
         "formats": [
           "glb",
+          "fbx",
           "png",
           "jpg",
           "jpeg",
@@ -229,6 +230,8 @@
           "mp3",
           "wav",
           "ogg",
+          "mp4",
+          "webm",
           "zip"
         ]
       },

@@ -104,7 +104,7 @@ type CapsuleState =
 
 export async function sendToEngine(
   engine: EngineKey,
-  asset: { id: string; displayName: string; fileName: string; kind: 'model3d' | 'image' | 'audio' | 'other'; url: string },
+  asset: { id: string; displayName: string; fileName: string; kind: 'model3d' | 'image' | 'audio' | 'video' | 'other'; url: string },
   setCapsule: (s: CapsuleState) => void,
 ): Promise<void> {
   if (state.status !== 'connected' || state.engine !== engine) {
@@ -129,7 +129,7 @@ export async function sendToEngine(
 }
 ```
 
-`kind` 取自 game-web 的资产类型：3D 模型 → `model3d`，图片 → `image`，音频 → `audio`，其余 → `other`。game-web 目前没有 sprite 资产类型，协议里的 `sprite`（png + json 打成 zip）留给以后接。发送前按 `connection.instance.formats` 与 `connection.instance.limits.maxFileBytes` 灰掉不可发的卡片，比等插件回错更友好。
+`kind` 取自 game-web 的资产类型：3D 模型（含绑骨 rig3d）→ `model3d`，图片 → `image`，音频 → `audio`，视频 → `video`，其余 → `other`。game-web 目前没有 sprite 资产类型，协议里的 `sprite`（png + json 打成 zip）留给以后接。发送前按 `connection.instance.formats` 与 `connection.instance.limits.maxFileBytes` 灰掉不可发的卡片，比等插件回错更友好。
 
 ## 4. 错误码 → 文案
 
