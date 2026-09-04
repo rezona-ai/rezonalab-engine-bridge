@@ -105,6 +105,7 @@ namespace RezonaLab.EngineBridge.Editor
                 server.Start();
                 Server = server;
                 LastStartError = null;
+                Changed?.Invoke(); // StateChanged 在 Start() 内部就发了，那时 Server 还是 null，窗口会画成「已停止」；赋值后再通知一次
             }
             catch (PortsExhaustedException ex)
             {

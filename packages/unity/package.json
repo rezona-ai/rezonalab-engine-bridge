@@ -1,11 +1,20 @@
 {
   "name": "com.rezonalab.engine-bridge",
-  "displayName": "Rezona Bridge",
+  "displayName": "Rezona Bridge for Unity",
   "version": "0.1.2",
   "unity": "2021.3",
-  "description": "Receive generated assets pushed from the Rezona Lab web workbench over a localhost WebSocket, drop them into Assets/RezonaAssets and instantiate glb models into the open scene. Editor-only.",
-  "keywords": ["rezona", "bridge", "websocket", "assets", "gltf"],
-  "author": { "name": "Rezona Lab", "url": "https://lab.rezona.ai" },
+  "description": "Rezona Bridge for Unity: push assets generated on the Rezona Lab canvas straight into this project over localhost WebSocket.",
+  "keywords": [
+    "rezona",
+    "bridge",
+    "websocket",
+    "assets",
+    "gltf"
+  ],
+  "author": {
+    "name": "Rezona Lab",
+    "url": "https://lab.rezona.ai"
+  },
   "license": "MIT",
   "dependencies": {
     "com.unity.modules.jsonserialize": "1.0.0"
