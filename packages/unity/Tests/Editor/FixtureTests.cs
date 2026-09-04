@@ -12,7 +12,7 @@ namespace RezonaLab.EngineBridge.Editor.Tests
     /// </summary>
     public sealed class FixtureTests
     {
-        public const int ExpectedFixtureCount = 11;
+        public const int ExpectedFixtureCount = 12;
 
         public static string FixturesDir()
         {
@@ -36,7 +36,7 @@ namespace RezonaLab.EngineBridge.Editor.Tests
         }
 
         [Test]
-        public void FixtureCountIsEleven()
+        public void FixtureCountMatchesExpected()
         {
             Assert.AreEqual(ExpectedFixtureCount, Directory.GetFiles(FixturesDir(), "*.json").Length);
         }

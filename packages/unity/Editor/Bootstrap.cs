@@ -15,7 +15,7 @@ namespace RezonaLab.EngineBridge.Editor
     [InitializeOnLoad]
     public static class Bootstrap
     {
-        public const string PluginVersion = "0.1.3";
+        public const string PluginVersion = "0.1.4";
         public const string AutoStartKey = "RezonaBridge.AutoStart";
         public const string ExtraOriginsKey = "RezonaBridge.ExtraOrigins";
 

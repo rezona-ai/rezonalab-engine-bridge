@@ -16,7 +16,7 @@ const HELLO = { type: 'hello', protocol: 1, client: 'rezona-web', clientVersion:
 const HELLO_ACK = {
   type: 'hello_ack', protocol: 1, engine: 'fake', engineVersion: '0.0.0', pluginVersion: '0.1.0',
   project: { name: 'Fixture', id: 'fixture1' }, limits: LIMITS,
-  formats: ['glb', 'png', 'jpg', 'jpeg', 'webp', 'mp3', 'wav', 'ogg', 'zip'],
+  formats: ['glb', 'fbx', 'png', 'jpg', 'jpeg', 'webp', 'mp3', 'wav', 'ogg', 'mp4', 'webm', 'zip'],
 };
 
 function bytes(n, seed) {
@@ -89,6 +89,17 @@ function add(name, body) { fixtures.push({ name, origin: ORIGIN, server: { limit
     expect: {
       outFrames: [HELLO_ACK, ...acks(t, 3), ...progress(t), { type: 'import_result', transferId: t, ok: true, savedPath: '<root>/RezonaAssets/theme.mp3' }],
       closeCode: null, finalState: 'ready', savedFileSha256: sha(d), files: ['RezonaAssets/theme.mp3'], adapterCalls: [{ fileName: 'theme.mp3', kind: 'audio' }],
+    },
+  });
+}
+// 2b. 视频：mp4 只落盘登记，不实例化（无 sceneNode）
+{
+  const d = bytes(24, 12); const t = 't12';
+  add('happy-video', {
+    frames: [inText(HELLO), inText(begin(t, 'intro.mp4', d, 'video')), ...chunks(t, d), inText({ type: 'transfer_end', transferId: t })],
+    expect: {
+      outFrames: [HELLO_ACK, ...acks(t, 2), ...progress(t), { type: 'import_result', transferId: t, ok: true, savedPath: '<root>/RezonaAssets/intro.mp4' }],
+      closeCode: null, finalState: 'ready', savedFileSha256: sha(d), files: ['RezonaAssets/intro.mp4'], adapterCalls: [{ fileName: 'intro.mp4', kind: 'video' }],
     },
   });
 }

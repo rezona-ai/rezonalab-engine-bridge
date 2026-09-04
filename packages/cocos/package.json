@@ -1,7 +1,7 @@
 {
   "package_version": 2,
   "name": "rezona-bridge",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "title": "Rezona Bridge for Cocos Creator",
   "description": "Rezona Bridge for Cocos Creator: push assets generated on the Rezona Lab canvas straight into this project.",
   "author": "Rezona Lab",
@@ -14,7 +14,7 @@
     "test": "vitest run --dir test"
   },
   "dependencies": {
-    "@rezonalab/engine-bridge-core": "0.1.3"
+    "@rezonalab/engine-bridge-core": "0.1.4"
   },
   "panels": {
     "default": {

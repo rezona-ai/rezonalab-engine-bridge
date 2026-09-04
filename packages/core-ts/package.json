@@ -1,6 +1,6 @@
 {
   "name": "@rezonalab/engine-bridge-core",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Engine-agnostic kernel of the Rezona Engine Bridge: framing, chunked streaming receiver, heartbeat, state machine, port allocation, origin allowlist, safe zip extraction, ws server assembly.",
   "license": "MIT",
   "type": "module",

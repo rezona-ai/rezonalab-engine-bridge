@@ -61,7 +61,7 @@ https://devlab.rezona.ai
   "engine": "cocos", "engineVersion": "3.8.6", "pluginVersion": "0.1.0",
   "project": { "name": "MyGame", "id": "b3f1a2c4" },
   "limits": { "chunkBytes": 4194304, "maxFileBytes": 536870912, "maxChunks": 128 },
-  "formats": ["glb", "png", "jpg", "jpeg", "webp", "mp3", "wav", "ogg", "zip"] }
+  "formats": ["glb", "fbx", "png", "jpg", "jpeg", "webp", "mp3", "wav", "ogg", "mp4", "webm", "zip"] }
 ```
 
 `protocol` 不等于 1 → 插件回 `error{code:"PROTOCOL_MISMATCH"}` 后以 **4426** 关闭。
@@ -84,6 +84,7 @@ https://devlab.rezona.ai
 4. `chunkBytes == limits.chunkBytes` 且 `chunkCount == ceil(byteSize / chunkBytes)`（`byteSize` 为 0 时 `chunkCount` 为 0），否则 **4400**。
 5. `fileName` 不含 `/`、`\`、`..`、`\0`、控制字符，长度 ≤ 200；扩展名在 `formats` 内，否则 `error{UNSUPPORTED_FORMAT}`（连接保持 `ready`）。
 6. `kind` 为 `sprite` 时扩展名必须是 `zip`。
+7. `kind` 取值：`model3d`（glb / fbx，导入后实例化到场景）、`image`、`audio`、`video`（mp4 / webm，只导入不实例化）、`sprite`、`other`。
 
 通过后打开 `<系统临时目录>/rezona-bridge/<transferId>.part` 写流，状态进入 `receiving`。
 
