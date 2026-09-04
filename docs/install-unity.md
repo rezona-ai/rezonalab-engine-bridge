@@ -8,7 +8,7 @@
 2. 左上角 **＋ → Add package from git URL…**，粘贴：
 
    ```
-   https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.3
+   https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.4
    ```
 
    Package Manager 解析要几十秒；装好后列表里显示 **Rezona Bridge for Unity**。

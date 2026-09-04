@@ -1,6 +1,6 @@
 {
   "name": "rezonalab-engine-bridge",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "description": "Rezona Lab Engine Bridge: push generated assets from the web canvas straight into a running Cocos Creator / Unity project over localhost WebSocket.",
   "license": "MIT",
