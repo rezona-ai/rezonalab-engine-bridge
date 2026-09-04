@@ -2,8 +2,8 @@
   "package_version": 2,
   "name": "rezona-bridge",
   "version": "0.1.2",
-  "title": "Rezona Bridge",
-  "description": "i18n:rezona-bridge.description",
+  "title": "Rezona Bridge for Cocos Creator",
+  "description": "Rezona Bridge for Cocos Creator: push assets generated on the Rezona Lab canvas straight into this project.",
   "author": "Rezona Lab",
   "license": "MIT",
   "editor": ">=3.8.5",
@@ -18,7 +18,7 @@
   },
   "panels": {
     "default": {
-      "title": "Rezona Bridge",
+      "title": "Rezona Bridge · Cocos",
       "type": "dockable",
       "main": "dist/panels/default",
       "size": {
@@ -38,18 +38,50 @@
       }
     ],
     "messages": {
-      "open-panel": { "methods": ["openPanel"] },
-      "start-server": { "methods": ["startServer"] },
-      "stop-server": { "methods": ["stopServer"] },
-      "query-state": { "methods": ["queryState"] },
-      "clear-logs": { "methods": ["clearLogs"] },
-      "set-extra-origins": { "methods": ["setExtraOrigins"] },
-      "rezona-bridge:state": { "methods": ["default.onState"] }
+      "open-panel": {
+        "methods": [
+          "openPanel"
+        ]
+      },
+      "start-server": {
+        "methods": [
+          "startServer"
+        ]
+      },
+      "stop-server": {
+        "methods": [
+          "stopServer"
+        ]
+      },
+      "query-state": {
+        "methods": [
+          "queryState"
+        ]
+      },
+      "clear-logs": {
+        "methods": [
+          "clearLogs"
+        ]
+      },
+      "set-extra-origins": {
+        "methods": [
+          "setExtraOrigins"
+        ]
+      },
+      "rezona-bridge:state": {
+        "methods": [
+          "default.onState"
+        ]
+      }
     },
     "profile": {
       "editor": {
-        "autoStart": { "default": true },
-        "extraOrigins": { "default": [] }
+        "autoStart": {
+          "default": true
+        },
+        "extraOrigins": {
+          "default": []
+        }
       }
     }
   }

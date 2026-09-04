@@ -8,11 +8,15 @@ const MAX_LOG_LINES = 200;
 
 type PanelDom = {
   badge: HTMLElement;
+  stateText: HTMLElement;
+  clientRow: HTMLElement;
+  client: HTMLElement;
+  progressFill: HTMLElement;
+  docs: HTMLElement;
   port: HTMLElement;
   toggle: HTMLElement;
   project: HTMLElement;
   currentFile: HTMLElement;
-  progress: HTMLElement & { value?: number };
   percent: HTMLElement;
   error: HTMLElement;
   logs: HTMLElement;
@@ -37,9 +41,25 @@ function t(key: string, fallback: string): string {
   return s && s !== full ? s : fallback;
 }
 
+/** 扩展版本：面板运行在 dist/panels/default/，包清单在三级之上。 */
+function pluginVersion(): string {
+  try {
+    return (JSON.parse(readFileSync(join(__dirname, '..', '..', '..', 'package.json'), 'utf8')) as { version?: string }).version ?? '';
+  } catch {
+    return '';
+  }
+}
+
+const DOCS_URL = 'https://github.com/rezona-ai/rezonalab-engine-bridge/blob/main/docs/install-cocos.md';
+
 function renderTemplate(): string {
   const html = readFileSync(join(__dirname, 'template.html'), 'utf8');
   const dict: Record<string, string> = {
+    __VERSION__: pluginVersion(),
+    __TAGLINE__: t('tagline', 'Push canvas assets straight into this project'),
+    __CLIENT__: t('client', 'Client'),
+    __DOCS__: t('docs', 'Install & troubleshooting'),
+    __FOOT_NOTE__: t('foot_note', 'Listens on 127.0.0.1 only · allow-listed origins only'),
     __STATE_STOPPED__: t('state_stopped', 'Stopped'),
     __PORT__: t('port', 'Port'),
     __START__: t('start', 'Start'),
@@ -68,9 +88,9 @@ function formatLog(e: LogEntry): string {
 function applySnapshot(this: PanelThis, snap: ServerSnapshot): void {
   const $ = this.$;
   const hasError = !!snap.lastError && snap.state === 'stopped';
-  const stateKey = hasError ? 'error' : snap.state;
+  const stateKey = hasError ? 'error' : snap.state === 'listening' && snap.connected ? 'connected' : snap.state;
   $.badge.dataset.state = stateKey;
-  $.badge.textContent = hasError
+  $.stateText.textContent = hasError
     ? t('state_error', 'Error')
     : snap.state === 'busy'
       ? t('state_busy', 'Transferring')
@@ -85,9 +105,11 @@ function applySnapshot(this: PanelThis, snap: ServerSnapshot): void {
   const p = snap.progress;
   $.currentFile.textContent = p ? p.fileName : '-';
   const percent = p ? Math.max(0, Math.min(100, Math.round(p.percent))) : 0;
-  $.progress.value = percent;
-  $.progress.setAttribute('value', String(percent));
-  $.percent.textContent = `${percent}%`;
+  $.progressFill.style.width = `${percent}%`;
+  $.progressFill.dataset.stage = p?.stage ?? '';
+  $.percent.textContent = p?.stage === 'failed' ? t('stage_failed', 'failed') : p?.stage === 'importing' ? t('stage_importing', 'importing') : `${percent}%`;
+  $.clientRow.hidden = !snap.connected;
+  $.client.textContent = snap.clientOrigin ?? '-';
 
   $.error.hidden = !snap.lastError;
   $.error.textContent = snap.lastError ?? '';
@@ -106,6 +128,7 @@ function applySnapshot(this: PanelThis, snap: ServerSnapshot): void {
 
   this._running = snap.state !== 'stopped';
   $.toggle.textContent = this._running ? t('stop', 'Stop') : t('start', 'Start');
+  $.toggle.dataset.running = String(this._running);
 
   $.allowlist.textContent = snap.originAllowlist.join('  ');
 }
@@ -127,11 +150,15 @@ module.exports = Editor.Panel.define({
   style: readFileSync(join(__dirname, 'style.css'), 'utf8'),
   $: {
     badge: '#state-badge',
+    stateText: '#state-text',
+    clientRow: '#client-row',
+    client: '#client',
+    progressFill: '#progress-fill',
+    docs: '#docs',
     port: '#port',
     toggle: '#toggle',
     project: '#project',
     currentFile: '#current-file',
-    progress: '#progress',
     percent: '#percent',
     error: '#error',
     logs: '#logs',
@@ -164,6 +191,15 @@ module.exports = Editor.Panel.define({
         await refresh.call(this);
       } finally {
         this._pending = false;
+      }
+    });
+    this.$.docs.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      try {
+        // 面板是 Electron 渲染进程，外链交给系统浏览器；拿不到 shell 时退回 window.open。
+        (require('electron') as { shell: { openExternal(u: string): void } }).shell.openExternal(DOCS_URL);
+      } catch {
+        window.open(DOCS_URL, '_blank');
       }
     });
     this.$.clearLogs.addEventListener('confirm', async () => {

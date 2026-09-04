@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  description: '把 Rezona Lab 画布上生成的资产直接推进当前 Cocos Creator 工程。',
+  description: 'Rezona Bridge for Cocos Creator：把 Rezona Lab 画布上生成的资产直接推进当前工程。',
   panel_title: 'Rezona Bridge',
   state_stopped: '已停止',
   state_listening: '监听中',
@@ -19,5 +19,11 @@ module.exports = {
   advanced: '高级',
   extra_origins_hint: '额外允许连接的网页来源，一行一个（如本地开发服务器）。保存后生效。',
   save: '保存',
+  tagline: '画布资产直推本工程',
+  client: '已连接',
+  docs: '安装与故障排查',
+  foot_note: '只监听 127.0.0.1 · 只接受白名单来源',
+  stage_importing: '导入中',
+  stage_failed: '失败',
   allowlist: '当前白名单：',
 };

@@ -1,23 +1,34 @@
 <section class="rb-panel">
-  <header class="rb-head">
-    <span id="state-badge" class="rb-badge" data-state="stopped">__STATE_STOPPED__</span>
-    <span class="rb-port"><span class="rb-label">__PORT__</span> <span id="port" class="rb-mono">-</span></span>
-    <ui-button id="toggle" class="rb-toggle">__START__</ui-button>
+  <header class="rb-hero">
+    <div class="rb-brand">
+      <svg class="rb-mark" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF6F03" d="M15.0555 0C16.4953 0.225666 19.3748 1.56316 19.3748 5.1077C19.3748 7.78521 17.4497 9.06215 15.7811 9.57121C13.6985 9.92239 11.9145 9.97114 10.4369 9.84509C7.83696 9.62323 6.21687 8.86564 5.56699 8.30123L4.99252 8.95815C5.65419 9.53283 6.9275 10.148 8.76185 10.496V24H0V0H15.0555ZM15.511 10.497C20.9966 13.8753 22.8461 20.7777 23.0769 24H9.81068V10.6564C9.99023 10.6777 10.1742 10.6969 10.3623 10.7129C11.8171 10.8371 13.5359 10.7989 15.511 10.497ZM6.35512 4.43103C5.91211 4.43103 5.55288 4.78909 5.55288 5.23092C5.55289 5.67273 5.91212 6.0308 6.35512 6.0308C6.79808 6.03075 7.15702 5.6727 7.15703 5.23092C7.15703 4.78912 6.79809 4.43108 6.35512 4.43103Z"/></svg>
+      <div class="rb-brand-text">
+        <div class="rb-name">Rezona Bridge <span class="rb-for">for Cocos Creator</span> <span class="rb-ver rb-mono">v__VERSION__</span></div>
+        <div class="rb-tagline">__TAGLINE__</div>
+      </div>
+    </div>
+    <div class="rb-hero-right">
+      <span id="state-badge" class="rb-badge" data-state="stopped"><i class="rb-dot"></i><span id="state-text">__STATE_STOPPED__</span></span>
+      <ui-button id="toggle" class="rb-toggle" data-running="false">__START__</ui-button>
+    </div>
   </header>
 
   <section class="rb-card">
+    <div class="rb-row"><span class="rb-label">__PORT__</span><span id="port" class="rb-value rb-mono">-</span></div>
     <div class="rb-row"><span class="rb-label">__PROJECT__</span><span id="project" class="rb-value">-</span></div>
     <div class="rb-row"><span class="rb-label">__SAVE_DIR__</span><span class="rb-value rb-mono">assets/RezonaAssets</span></div>
+    <div id="client-row" class="rb-row" hidden><span class="rb-label">__CLIENT__</span><span id="client" class="rb-value rb-mono">-</span></div>
+    <div class="rb-divider"></div>
     <div class="rb-row"><span class="rb-label">__CURRENT_FILE__</span><span id="current-file" class="rb-value rb-mono">-</span></div>
-    <div class="rb-row rb-progress-row">
-      <ui-progress id="progress" value="0"></ui-progress>
-      <span id="percent" class="rb-mono">0%</span>
+    <div class="rb-progress-row">
+      <div class="rb-bar"><i id="progress-fill" style="width:0%"></i></div>
+      <span id="percent" class="rb-mono rb-percent">0%</span>
     </div>
     <div id="error" class="rb-error" hidden></div>
   </section>
 
   <section class="rb-card rb-logs-card">
-    <div class="rb-logs-head">
+    <div class="rb-card-head">
       <span class="rb-title">__LOGS__</span>
       <ui-button id="clear-logs" size="small">__CLEAR_LOGS__</ui-button>
     </div>
@@ -27,10 +38,15 @@
   <details class="rb-card rb-advanced">
     <summary>__ADVANCED__</summary>
     <p class="rb-hint">__EXTRA_ORIGINS_HINT__</p>
-    <ui-textarea id="extra-origins" placeholder="http://localhost:5173"></ui-textarea>
+    <ui-textarea id="extra-origins" placeholder="http://localhost:3000"></ui-textarea>
     <div class="rb-advanced-actions">
       <ui-button id="save-origins" size="small">__SAVE__</ui-button>
     </div>
     <p class="rb-hint"><span class="rb-label">__ALLOWLIST__</span> <span id="allowlist" class="rb-mono"></span></p>
   </details>
+
+  <footer class="rb-foot">
+    <span class="rb-foot-note">__FOOT_NOTE__</span>
+    <a id="docs" class="rb-link" href="#">__DOCS__ ↗</a>
+  </footer>
 </section>

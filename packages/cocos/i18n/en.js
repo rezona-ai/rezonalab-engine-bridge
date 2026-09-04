@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  description: 'Push assets generated on the Rezona Lab canvas straight into the open Cocos Creator project.',
+  description: 'Rezona Bridge for Cocos Creator: push assets generated on the Rezona Lab canvas straight into this project.',
   panel_title: 'Rezona Bridge',
   state_stopped: 'Stopped',
   state_listening: 'Listening',
@@ -19,5 +19,11 @@ module.exports = {
   advanced: 'Advanced',
   extra_origins_hint: 'Extra allowed web origins, one per line (e.g. a local dev server). Takes effect after saving.',
   save: 'Save',
+  tagline: 'Push canvas assets straight into this project',
+  client: 'Client',
+  docs: 'Install & troubleshooting',
+  foot_note: 'Listens on 127.0.0.1 only · allow-listed origins only',
+  stage_importing: 'importing',
+  stage_failed: 'failed',
   allowlist: 'Current allowlist:',
 };

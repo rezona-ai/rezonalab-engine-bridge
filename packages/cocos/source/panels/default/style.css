@@ -1,26 +1,72 @@
-.rb-panel { display: flex; flex-direction: column; gap: 8px; padding: 8px; height: 100%; box-sizing: border-box; font-size: 12px; color: var(--color-normal-contrast-emphasis); }
-.rb-head { display: flex; align-items: center; gap: 8px; }
-.rb-badge { padding: 2px 8px; border-radius: 10px; font-weight: 600; background: var(--color-normal-fill-weaker); }
-.rb-badge[data-state="stopped"] { background: #5a5a5a; color: #ddd; }
-.rb-badge[data-state="listening"] { background: #2e7d32; color: #fff; }
-.rb-badge[data-state="busy"] { background: #1565c0; color: #fff; }
-.rb-badge[data-state="error"] { background: #b71c1c; color: #fff; }
-.rb-port { flex: 1; }
-.rb-card { padding: 8px; border-radius: 4px; background: var(--color-normal-fill-weaker, rgba(255,255,255,0.04)); }
-.rb-row { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; }
-.rb-label { opacity: 0.7; }
+/* Rezona Bridge · Cocos 面板。深色卡片 + 品牌橙（#FF6F03）作唯一强调色；与 Unity 窗口共用同一套状态色。 */
+:host { --rb-accent: #FF6F03; --rb-ok: #22a559; --rb-busy: #FF6F03; --rb-err: #d64545; --rb-muted: rgba(255,255,255,0.55); --rb-line: rgba(255,255,255,0.08); }
+.rb-panel { display: flex; flex-direction: column; gap: 10px; padding: 12px; height: 100%; box-sizing: border-box; font-size: 12px; color: #e6e6e6;
+  background: radial-gradient(circle at 0 0, rgba(255,111,3,0.10), transparent 38%), linear-gradient(180deg, #161616 0%, #1c1c1c 100%); }
+
+/* 品牌区 */
+.rb-hero { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--rb-line); background: rgba(255,255,255,0.03); border-left: 3px solid var(--rb-accent); }
+.rb-brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.rb-mark { width: 26px; height: 26px; flex: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+.rb-brand-text { min-width: 0; }
+.rb-name { font-weight: 700; font-size: 14px; letter-spacing: 0.2px; white-space: nowrap; }
+.rb-for { font-weight: 500; font-size: 12px; color: var(--rb-muted); }
+.rb-ver { font-weight: 400; font-size: 11px; color: var(--rb-muted); margin-left: 4px; }
+.rb-tagline { color: var(--rb-muted); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rb-hero-right { display: flex; align-items: center; gap: 8px; flex: none; }
+
+/* 状态胶囊 */
+.rb-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-weight: 600; font-size: 11px;
+  background: rgba(255,255,255,0.08); color: #ddd; white-space: nowrap; }
+.rb-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; opacity: 0.9; }
+.rb-badge[data-state="stopped"] { color: #bdbdbd; }
+.rb-badge[data-state="listening"] { background: rgba(34,165,89,0.18); color: #4fd07f; }
+.rb-badge[data-state="listening"] .rb-dot { box-shadow: 0 0 0 3px rgba(34,165,89,0.18); }
+.rb-badge[data-state="connected"] { background: rgba(34,165,89,0.28); color: #62e08f; }
+.rb-badge[data-state="busy"] { background: rgba(255,111,3,0.20); color: #ff9a4d; }
+.rb-badge[data-state="busy"] .rb-dot { animation: rb-pulse 1s ease-in-out infinite; }
+.rb-badge[data-state="error"] { background: rgba(214,69,69,0.20); color: #ff7b7b; }
+@keyframes rb-pulse { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+.rb-toggle[data-running="false"] { --ui-button-bg: var(--rb-accent); --color-default-fill: var(--rb-accent); --color-default-fill-hover: #ff8a2a; --color-default-contrast: #fff; }
+
+/* 卡片 */
+.rb-card { padding: 10px 12px; border-radius: 10px; border: 1px solid var(--rb-line); background: rgba(255,255,255,0.03); }
+.rb-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.rb-title { font-weight: 600; letter-spacing: 0.2px; }
+.rb-row { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; align-items: baseline; }
+.rb-label { color: var(--rb-muted); flex: none; }
 .rb-value { text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.rb-mono { font-family: Menlo, Consolas, monospace; }
-.rb-progress-row { align-items: center; margin-top: 4px; }
-.rb-progress-row ui-progress { flex: 1; }
-.rb-error { margin-top: 6px; color: #ff6b6b; white-space: pre-wrap; }
-.rb-logs-card { flex: 1; display: flex; flex-direction: column; min-height: 100px; }
-.rb-logs-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-.rb-title { font-weight: 600; }
-.rb-logs { flex: 1; margin: 0; overflow: auto; font-family: Menlo, Consolas, monospace; font-size: 11px; line-height: 1.4; white-space: pre-wrap; word-break: break-all; }
-.rb-log-error { color: #ff6b6b; }
-.rb-log-warn { color: #ffb74d; }
-.rb-advanced summary { cursor: pointer; font-weight: 600; }
+.rb-mono { font-family: "SF Mono", Menlo, Consolas, monospace; }
+.rb-divider { height: 1px; background: var(--rb-line); margin: 6px 0; }
+
+/* 进度条（自绘，好上品牌色） */
+.rb-progress-row { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.rb-bar { flex: 1; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.rb-bar i { display: block; height: 100%; width: 0; border-radius: 3px; background: linear-gradient(90deg, #ff8a2a, var(--rb-accent)); transition: width 120ms linear; }
+.rb-bar i[data-stage="failed"] { background: var(--rb-err); }
+.rb-bar i[data-stage="done"] { background: var(--rb-ok); }
+.rb-percent { min-width: 56px; text-align: right; color: var(--rb-muted); }
+.rb-error { margin-top: 8px; padding: 6px 8px; border-radius: 6px; background: rgba(214,69,69,0.12); color: #ff8a8a; white-space: pre-wrap; }
+
+/* 日志 */
+.rb-logs-card { flex: 1; display: flex; flex-direction: column; min-height: 110px; }
+.rb-logs { flex: 1; margin: 0; padding: 8px; overflow: auto; border-radius: 6px; background: rgba(0,0,0,0.35);
+  font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 11px; line-height: 1.5; white-space: pre-wrap; word-break: break-all; color: #cfcfcf; }
+.rb-log-error { color: #ff7b7b; }
+.rb-log-warn { color: #ffb15c; }
+
+/* 高级 */
+.rb-advanced summary { cursor: pointer; font-weight: 600; color: var(--rb-muted); }
+.rb-advanced[open] summary { color: #e6e6e6; margin-bottom: 4px; }
 .rb-advanced ui-textarea { width: 100%; min-height: 56px; margin: 6px 0; }
 .rb-advanced-actions { display: flex; justify-content: flex-end; }
-.rb-hint { margin: 4px 0; opacity: 0.7; word-break: break-all; }
+.rb-hint { margin: 4px 0; color: var(--rb-muted); word-break: break-all; }
+
+/* 页脚 */
+.rb-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 4px; color: var(--rb-muted); font-size: 11px; }
+.rb-link { color: var(--rb-accent); text-decoration: none; }
+.rb-link:hover { text-decoration: underline; }
+
+/* 窄面板：先让副标题让路，再让胶囊文字让路 */
+@media (max-width: 440px) { .rb-tagline { display: none; } }
+@media (max-width: 360px) { .rb-badge #state-text { display: none; } .rb-badge { padding: 3px 7px; } }
