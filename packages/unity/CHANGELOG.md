@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.3] - 2026-09-04
+
+- 窗口重做：品牌区（R 标 + 名称 + 版本 + 状态胶囊 + 启停）、连接卡片、级别着色日志、页脚文档链接；文案跟随编辑器语言（zh/en）。
+- 修复窗口刚启动时显示「已停止」（StateChanged 早于 Server 赋值）。
+- displayName 改为 Rezona Bridge for Unity。
+
 ## [0.1.2] - 2026-09-03
 
 - 修复：git URL 安装后包内一行代码都没编译——UPM 把包当只读目录，缺 `.meta` 的资产被整体忽略（`has no meta file, but it's in an immutable folder`）。现在 Unity 生成的 `.meta` 随包提交。v0.1.1 因此不可用，请装 v0.1.2。

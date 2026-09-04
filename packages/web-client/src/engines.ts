@@ -18,15 +18,15 @@ export interface EngineInfo {
 
 const DOCS = 'https://github.com/rezona-ai/rezonalab-engine-bridge/blob/main/docs';
 /** 网页客户端自身版本，握手 `clientVersion` 用；与 package.json 同步（scripts/sync-version.mjs）。 */
-export const CLIENT_VERSION = '0.1.2';
+export const CLIENT_VERSION = '0.1.3';
 export const CLIENT_NAME = 'rezona-web';
 
 export const ENGINES: readonly EngineInfo[] = [
-  { key: 'cocos', displayName: 'Cocos Creator', portRange: [41700, 41719], supported: true, pluginVersion: '0.1.2', minPluginVersion: '0.1.0', installDocUrl: `${DOCS}/install-cocos.md` },
-  { key: 'unity', displayName: 'Unity', portRange: [41720, 41739], supported: true, pluginVersion: '0.1.2', minPluginVersion: '0.1.0', installDocUrl: `${DOCS}/install-unity.md` },
-  { key: 'godot', displayName: 'Godot', portRange: [41740, 41759], supported: false, pluginVersion: '0.1.2', minPluginVersion: '0.1.0', installDocUrl: `${DOCS}/install-godot.md` },
-  { key: 'unreal', displayName: 'Unreal Engine', portRange: [41760, 41779], supported: false, pluginVersion: '0.1.2', minPluginVersion: '0.1.0', installDocUrl: `${DOCS}/install-unreal.md` },
-  { key: 'blender', displayName: 'Blender', portRange: [41780, 41799], supported: false, pluginVersion: '0.1.2', minPluginVersion: '0.1.0', installDocUrl: `${DOCS}/install-blender.md` },
+  { key: 'cocos', displayName: 'Cocos Creator', portRange: [41700, 41719], supported: true, pluginVersion: '0.1.3', minPluginVersion: '0.1.0', installDocUrl: `${DOCS}/install-cocos.md` },
+  { key: 'unity', displayName: 'Unity', portRange: [41720, 41739], supported: true, pluginVersion: '0.1.3', minPluginVersion: '0.1.0', installDocUrl: `${DOCS}/install-unity.md` },
+  { key: 'godot', displayName: 'Godot', portRange: [41740, 41759], supported: false, pluginVersion: '0.1.3', minPluginVersion: '0.1.0', installDocUrl: `${DOCS}/install-godot.md` },
+  { key: 'unreal', displayName: 'Unreal Engine', portRange: [41760, 41779], supported: false, pluginVersion: '0.1.3', minPluginVersion: '0.1.0', installDocUrl: `${DOCS}/install-unreal.md` },
+  { key: 'blender', displayName: 'Blender', portRange: [41780, 41799], supported: false, pluginVersion: '0.1.3', minPluginVersion: '0.1.0', installDocUrl: `${DOCS}/install-blender.md` },
 ];
 
 export function getEngine(key: EngineKey): EngineInfo {
