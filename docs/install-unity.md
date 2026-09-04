@@ -11,19 +11,16 @@
    https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.2
    ```
 
-   <!-- TODO 首次真机验收后补截图：images/unity-add-git-url.png -->
-   <!-- TODO：首个正式版发布时补截图 -->
+   Package Manager 解析要几十秒；装好后列表里显示 **Rezona Bridge for Unity**。
 
 3. 等待解析完成，列表里出现 **Rezona Bridge**（`com.rezonalab.engine-bridge`）。
 4. 菜单 **Tools → Rezona Bridge** 打开窗口，看到「监听中 · 端口 41720」即安装完成。
 
-   <!-- TODO 首次真机验收后补截图：images/unity-window-listening.png -->
-   <!-- TODO：首个正式版发布时补截图 -->
+   ![Rezona Bridge for Unity 窗口：监听中 · 端口 41720](images/unity-window-listening.png)
 
 5. 要导入 glb 需要 **glTFast**。窗口检测到缺包时会出黄条「需要 glTFast」并给一个「添加 glTFast」按钮，点它相当于在 Package Manager 里添加 `com.unity.cloud.gltfast`。
 
-   <!-- TODO 首次真机验收后补截图：images/unity-gltfast-banner.png -->
-   <!-- TODO：首个正式版发布时补截图 -->
+   黄条只在第一次收到 glb 且检测不到 glTFast 时出现，之后自动消失。
 
 6. 回到 Rezona Lab 工作台，顶栏「Engine Bridge」拨开 **Unity** 开关；Chrome 会弹一次「连接本地网络设备」询问，点允许。徽标「已连接 · <工程名>」后即可在卡片上「发送至 → Unity」。
 
