@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { LogEntry, ServerSnapshot } from '@rezonalab/engine-bridge-core';
+import { LOG_TEMPLATES, interpolateLog, type LogEntry, type ServerSnapshot } from '@rezonalab/engine-bridge-core';
 
 /** 面板与主进程约定的包名；与 package.json 的 name 一致。 */
 const PKG = 'rezona-bridge';
@@ -82,7 +82,9 @@ function formatLog(e: LogEntry): string {
   const mm = String(d.getMinutes()).padStart(2, '0');
   const ss = String(d.getSeconds()).padStart(2, '0');
   const tag = e.level === 'error' ? 'E' : e.level === 'warn' ? 'W' : 'I';
-  return `${hh}:${mm}:${ss} [${tag}] ${e.msg}`;
+  // 走编辑器自己的语言设置：内核只给码与参数，文案在 i18n/*.js 的 log_<码> 里。
+  const template = t(`log_${e.code}`, LOG_TEMPLATES[e.code]?.en ?? e.code);
+  return `${hh}:${mm}:${ss} [${tag}] ${interpolateLog(template, e.args)}`;
 }
 
 function applySnapshot(this: PanelThis, snap: ServerSnapshot): void {

@@ -108,6 +108,11 @@ namespace RezonaLab.EngineBridge.Editor
     {
         public DateTime At;
         public LogLevel Level;
+        /// <summary>事件码；面板据此按自己的语言渲染文案（见 LogCodes）。</summary>
+        public string Code;
+        /// <summary>文案插值参数。</summary>
+        public Dictionary<string, string> Args;
+        /// <summary>英文渲染结果，给不做本地化的消费方（Console / 测试）用。面板不该读它。</summary>
         public string Message;
     }
 

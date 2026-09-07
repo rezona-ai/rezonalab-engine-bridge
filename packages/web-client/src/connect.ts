@@ -12,6 +12,7 @@ export const DEFAULT_PONG_TIMEOUT_MS = 10_000;
 /** 全部端口在这么短的时间内一起 error 且无一 open，才怀疑是浏览器层（LNA）拒绝而非「没有引擎在听」。 */
 export const DEFAULT_LNA_SUSPECT_MS = 50;
 const CLOSE_PROTOCOL_MISMATCH = 4426;
+const CLOSE_ORIGIN_REJECTED = 4403;
 const CLOSE_HEARTBEAT = 4408;
 
 /** 探测到的一个引擎实例（一个正在运行的工程）。 */
@@ -203,6 +204,8 @@ export class LiveConnection implements BridgeConnection {
 type ProbeResult =
   | { kind: 'instance'; instance: EngineInstance; channel: SocketChannel }
   | { kind: 'outdated'; detail: string }
+  /** 插件在监听、但把本站来源拒了（升级后 4403）。与「没有引擎」是两件事，文案要指向插件的「高级」设置。 */
+  | { kind: 'origin-rejected' }
   | { kind: 'none'; opened: boolean; erroredAt: number | null };
 
 /**
@@ -268,6 +271,7 @@ function probePort(port: number, opts: ResolvedOptions): Promise<ProbeResult> {
       },
       onClose: (code) => {
         if (code === CLOSE_PROTOCOL_MISMATCH) return done({ kind: 'outdated', detail: 'closed with 4426' });
+        if (code === CLOSE_ORIGIN_REJECTED) return done({ kind: 'origin-rejected' });
         done({ kind: 'none', opened, erroredAt: opened ? null : Date.now() });
       },
       onError: () => {
@@ -295,6 +299,10 @@ export async function connectEngine(key: EngineKey, opts: ConnectOptions = {}): 
   if (found.length === 0) {
     const outdated = results.find((r): r is Extract<ProbeResult, { kind: 'outdated' }> => r.kind === 'outdated');
     if (outdated) throw new BridgeClientError('PLUGIN_OUTDATED', outdated.detail);
+    // 有插件应答但拒了来源：这是确定信号，优先于任何权限/无引擎的推断。
+    if (results.some((r) => r.kind === 'origin-rejected')) {
+      throw new BridgeClientError('ORIGIN_REJECTED', `${engine.displayName} plugin rejected this site's origin`);
+    }
     // 一个都没找到时，「浏览器把连接拦了」与「引擎没开」在回环上时序一致（都是几毫秒 error），
     // 时序区分不开 —— 先问 Permissions API 拿确定答案，只有它给不出结论时才退回旧的时序启发式。
     const permission = await resolved.queryLnaPermission().catch((): LnaPermission => 'unknown');
@@ -327,6 +335,7 @@ export async function switchInstance(connection: BridgeConnection, port: number,
   connection.close();
   const result = await probePort(port, resolved);
   if (result.kind === 'outdated') throw new BridgeClientError('PLUGIN_OUTDATED', result.detail);
+  if (result.kind === 'origin-rejected') throw new BridgeClientError('ORIGIN_REJECTED', "plugin rejected this site's origin");
   if (result.kind === 'none') throw new BridgeClientError('NO_ENGINE', `no plugin answered on port ${port}`);
   return new LiveConnection(result.instance, result.channel, resolved);
 }

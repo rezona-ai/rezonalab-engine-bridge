@@ -36,7 +36,7 @@ namespace RezonaLab.EngineBridge.Editor
     {
         public Action<SessionState> OnStateChange;
         public Action<ProgressInfo> OnProgress;
-        public Action<LogLevel, string> OnLog;
+        public Action<LogLevel, string, Dictionary<string, string>> OnLog;
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ namespace RezonaLab.EngineBridge.Editor
         {
             if (!Origin.IsAllowed(OriginHeader, _config.OriginAllowlist))
             {
-                Log(LogLevel.Warn, "拒绝来源 " + (OriginHeader ?? "(缺 Origin 头)"));
+                Log(LogLevel.Warn, LogCodes.OriginRejected, new Dictionary<string, string> { { "origin", OriginHeader ?? LogCodes.MissingOriginEn } });
                 Close(CloseCode.OriginRejected, "origin not allowed");
                 return false;
             }
@@ -99,7 +99,7 @@ namespace RezonaLab.EngineBridge.Editor
                 if (ev == HeartbeatEvent.Ping) Send(new JsonObject().Set("type", "ping"));
                 else
                 {
-                    Log(LogLevel.Warn, "心跳超时，关闭连接");
+                    Log(LogLevel.Warn, LogCodes.HeartbeatTimeout);
                     Close(CloseCode.HeartbeatTimeout, "heartbeat timeout");
                     return;
                 }
@@ -144,7 +144,7 @@ namespace RezonaLab.EngineBridge.Editor
                 }
                 Send(BuildHelloAck());
                 SetState(SessionState.Ready);
-                Log(LogLevel.Info, "客户端已连接：" + msg.Raw["client"] + " " + msg.Raw["clientVersion"]);
+                Log(LogLevel.Info, LogCodes.ClientConnected, new Dictionary<string, string> { { "client", Convert.ToString(msg.Raw["client"]) }, { "clientVersion", Convert.ToString(msg.Raw["clientVersion"]) } });
                 return;
             }
 
@@ -187,7 +187,7 @@ namespace RezonaLab.EngineBridge.Editor
             catch (LimitException ex) { Fail(CloseCode.LimitExceeded, ex.Message); return Task.CompletedTask; }
             catch (Exception ex)
             {
-                Log(LogLevel.Error, "写入分块失败：" + ex.Message);
+                Log(LogLevel.Error, LogCodes.ChunkWriteFailed, new Dictionary<string, string> { { "reason", ex.Message } });
                 Fail(CloseCode.BadFrame, "chunk write failed");
                 return Task.CompletedTask;
             }
@@ -217,7 +217,7 @@ namespace RezonaLab.EngineBridge.Editor
                 }
                 if (rejection.Kind == BeginRejection.RejectionKind.BadFrame) { Fail(CloseCode.BadFrame, rejection.Message); return; }
                 SendError(rejection.Code, rejection.Message, msg.TransferId);
-                Log(LogLevel.Warn, "拒绝传输 " + msg.FileName + "：" + rejection.Message);
+                Log(LogLevel.Warn, LogCodes.TransferRejected, new Dictionary<string, string> { { "file", msg.FileName }, { "reason", rejection.Message } });
                 return;
             }
             var receiver = new TransferReceiver(msg, _config.TmpDir);
@@ -228,7 +228,7 @@ namespace RezonaLab.EngineBridge.Editor
             catch (Exception ex)
             {
                 receiver.Dispose();
-                Log(LogLevel.Error, "无法创建临时文件：" + ex.Message);
+                Log(LogLevel.Error, LogCodes.TmpCreateFailed, new Dictionary<string, string> { { "reason", ex.Message } });
                 SendError("INTERNAL", "cannot open temp file", msg.TransferId);
                 return;
             }
@@ -237,7 +237,7 @@ namespace RezonaLab.EngineBridge.Editor
             _currentItemId = msg.ItemId;
             _currentDisplayName = msg.DisplayName;
             SetState(SessionState.Receiving);
-            Log(LogLevel.Info, "开始接收 " + msg.FileName + "（" + msg.ByteSize + " 字节，" + msg.ChunkCount + " 块）");
+            Log(LogLevel.Info, LogCodes.ReceiveStart, new Dictionary<string, string> { { "file", msg.FileName }, { "bytes", msg.ByteSize.ToString() }, { "chunks", msg.ChunkCount.ToString() } });
             Progress(msg.TransferId, msg.FileName, 0, "receiving");
         }
 
@@ -252,7 +252,7 @@ namespace RezonaLab.EngineBridge.Editor
             var reason = receiver.Finish();
             if (reason != null)
             {
-                Log(LogLevel.Warn, receiver.FileName + " 校验失败：" + reason);
+                Log(LogLevel.Warn, LogCodes.ChecksumFailed, new Dictionary<string, string> { { "file", receiver.FileName }, { "reason", reason } });
                 FinishTransfer(ImportResultError(transferId, "CHECKSUM_MISMATCH", reason), "failed");
                 return;
             }
@@ -278,7 +278,7 @@ namespace RezonaLab.EngineBridge.Editor
             {
                 receiver.Abort();
                 var e = ex as BridgeException ?? new BridgeException("INTERNAL", ex.Message);
-                Log(LogLevel.Warn, receiver.FileName + " 落盘失败：" + e.Message);
+                Log(LogLevel.Warn, LogCodes.SaveFailed, new Dictionary<string, string> { { "file", receiver.FileName }, { "reason", e.Message } });
                 FinishTransfer(ImportResultError(transferId, e.Code, e.Message), "failed");
                 return;
             }
@@ -303,11 +303,11 @@ namespace RezonaLab.EngineBridge.Editor
             catch (Exception ex)
             {
                 var e = ex as BridgeException ?? new BridgeException("IMPORT_FAILED", ex.Message);
-                Log(LogLevel.Error, receiver.FileName + " 导入失败：" + e.Code + " " + e.Message);
+                Log(LogLevel.Error, LogCodes.ImportFailed, new Dictionary<string, string> { { "file", receiver.FileName }, { "code", e.Code }, { "reason", e.Message } });
                 FinishTransfer(ImportResultError(transferId, e.Code, e.Message), "failed");
                 return;
             }
-            Log(LogLevel.Info, receiver.FileName + " 已导入：" + outcome.SavedPath);
+            Log(LogLevel.Info, LogCodes.Imported, new Dictionary<string, string> { { "file", receiver.FileName }, { "path", outcome.SavedPath } });
             var result = new JsonObject().Set("type", "import_result").Set("transferId", transferId).Set("ok", true).Set("savedPath", outcome.SavedPath);
             if (!string.IsNullOrEmpty(outcome.SceneNode)) result.Set("sceneNode", outcome.SceneNode);
             FinishTransfer(result, "done");
@@ -370,7 +370,7 @@ namespace RezonaLab.EngineBridge.Editor
 
         private void Fail(int code, string reason)
         {
-            Log(LogLevel.Warn, "关闭连接（" + code + "）：" + reason);
+            Log(LogLevel.Warn, LogCodes.ConnectionClosed, new Dictionary<string, string> { { "code", code.ToString() }, { "reason", reason } });
             CleanupTransfer();
             Close(code, reason);
         }
@@ -411,7 +411,7 @@ namespace RezonaLab.EngineBridge.Editor
             _hooks.OnProgress?.Invoke(new ProgressInfo { TransferId = transferId, FileName = fileName, Percent = percent, Stage = stage });
         }
 
-        private void Log(LogLevel level, string msg) => _hooks.OnLog?.Invoke(level, msg);
+        private void Log(LogLevel level, string code, Dictionary<string, string> args = null) => _hooks.OnLog?.Invoke(level, code, args);
 
         private static async Task<T> WithTimeout<T>(Task<T> task, int ms)
         {
