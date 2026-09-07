@@ -1,4 +1,4 @@
-import { isChromium142Plus } from './lna.js';
+import { isChromium142Plus, queryLnaPermission, type LnaPermission } from './lna.js';
 import type { HelloAckMessage, Limits, PortRange } from './protocol-types.js';
 import { CLIENT_NAME, CLIENT_VERSION, getEngine, type EngineKey } from './engines.js';
 import { BridgeClientError } from './errors.js';
@@ -32,6 +32,8 @@ export interface ConnectOptions {
   pingIntervalMs?: number;
   pongTimeoutMs?: number;
   lnaSuspectMs?: number;
+  /** 注入权限查询（测试用）；生产走 `queryLnaPermission`（Permissions API）。 */
+  queryLnaPermission?: () => Promise<LnaPermission>;
   /** 浏览器 UA；LNA 拒绝的判定只对 Chromium 142+ 生效，其它浏览器瞬间 error 就是普通的 ECONNREFUSED。默认取 navigator.userAgent。 */
   userAgent?: string;
   clientVersion?: string;
@@ -62,6 +64,7 @@ interface ResolvedOptions {
   pingIntervalMs: number;
   pongTimeoutMs: number;
   lnaSuspectMs: number;
+  queryLnaPermission: () => Promise<LnaPermission>;
   clientVersion: string;
   minPluginVersion: string;
   createSocket: SocketFactory;
@@ -73,6 +76,7 @@ function resolve(opts: ConnectOptions, minPluginVersion: string): ResolvedOption
     pingIntervalMs: opts.pingIntervalMs ?? DEFAULT_PING_INTERVAL_MS,
     pongTimeoutMs: opts.pongTimeoutMs ?? DEFAULT_PONG_TIMEOUT_MS,
     lnaSuspectMs: opts.lnaSuspectMs ?? DEFAULT_LNA_SUSPECT_MS,
+    queryLnaPermission: opts.queryLnaPermission ?? queryLnaPermission,
     userAgent: opts.userAgent ?? (typeof navigator !== 'undefined' ? navigator.userAgent : ''),
     clientVersion: opts.clientVersion ?? CLIENT_VERSION,
     minPluginVersion: opts.minPluginVersion ?? minPluginVersion,
@@ -291,13 +295,22 @@ export async function connectEngine(key: EngineKey, opts: ConnectOptions = {}): 
   if (found.length === 0) {
     const outdated = results.find((r): r is Extract<ProbeResult, { kind: 'outdated' }> => r.kind === 'outdated');
     if (outdated) throw new BridgeClientError('PLUGIN_OUTDATED', outdated.detail);
-    const nones = results.filter((r): r is Extract<ProbeResult, { kind: 'none' }> => r.kind === 'none');
-    const allErroredFast =
-      nones.length === results.length && nones.every((r) => !r.opened && r.erroredAt !== null && r.erroredAt - startedAt < resolved.lnaSuspectMs);
-    // 回环上被拒绝的连接本来就 ~1 ms 出错，「全部瞬间失败」在非 Chromium 142+ 上只说明没引擎在跑，不能报成权限被拒。
-    if (allErroredFast && resolved.lnaSuspectMs > 0 && isChromium142Plus(resolved.userAgent)) {
-      throw new BridgeClientError('LNA_DENIED_SUSPECTED', `all ${ports.length} ports errored within ${resolved.lnaSuspectMs} ms; browser may have blocked local network access`);
+    // 一个都没找到时，「浏览器把连接拦了」与「引擎没开」在回环上时序一致（都是几毫秒 error），
+    // 时序区分不开 —— 先问 Permissions API 拿确定答案，只有它给不出结论时才退回旧的时序启发式。
+    const permission = await resolved.queryLnaPermission().catch((): LnaPermission => 'unknown');
+    if (permission === 'denied') {
+      throw new BridgeClientError('LNA_DENIED', 'browser denied local network access for this site');
     }
+    if (permission === 'unknown') {
+      const nones = results.filter((r): r is Extract<ProbeResult, { kind: 'none' }> => r.kind === 'none');
+      const allErroredFast =
+        nones.length === results.length && nones.every((r) => !r.opened && r.erroredAt !== null && r.erroredAt - startedAt < resolved.lnaSuspectMs);
+      // 回环上被拒绝的连接本来就 ~1 ms 出错，「全部瞬间失败」在非 Chromium 142+ 上只说明没引擎在跑，不能报成权限被拒。
+      if (allErroredFast && resolved.lnaSuspectMs > 0 && isChromium142Plus(resolved.userAgent)) {
+        throw new BridgeClientError('LNA_DENIED_SUSPECTED', `all ${ports.length} ports errored within ${resolved.lnaSuspectMs} ms; browser may have blocked local network access`);
+      }
+    }
+    // granted / prompt：权限不是障碍，那就真的是没有引擎在监听。
     throw new BridgeClientError('NO_ENGINE', `no ${engine.displayName} plugin listening on ${from}-${to}`);
   }
   const [first, ...rest] = found;
