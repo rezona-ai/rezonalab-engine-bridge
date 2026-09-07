@@ -1,15 +1,42 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace RezonaLab.EngineBridge.Editor
 {
-    /// <summary>面板文案，跟随编辑器系统语言：中文环境用简体中文，其余用英文。键与 Cocos 扩展 i18n 保持同名，两边文案一致。</summary>
+    /// <summary>面板文案，跟随**编辑器**的语言偏好（不是操作系统语言）。键与 Cocos 扩展 i18n 保持同名，两边文案一致。</summary>
     internal static class L10n
     {
-        private static readonly bool Zh =
-            Application.systemLanguage == SystemLanguage.Chinese ||
-            Application.systemLanguage == SystemLanguage.ChineseSimplified ||
-            Application.systemLanguage == SystemLanguage.ChineseTraditional;
+        /// <summary>当前是否走中文文案。日志渲染也读它，保证标签与日志同语言。</summary>
+        internal static readonly bool IsZh = ResolveZh();
+
+        /// <summary>
+        /// 语言取自编辑器的 Preferences → Languages，而非 `Application.systemLanguage`：
+        /// 系统中文 + 编辑器英文的人应该拿到英文窗口。该 API 在各版本间搬过位置，所以用反射探，
+        /// 探不到再退回系统语言。
+        /// </summary>
+        private static bool ResolveZh()
+        {
+            var lang = EditorLanguage() ?? Application.systemLanguage;
+            return lang == SystemLanguage.Chinese || lang == SystemLanguage.ChineseSimplified || lang == SystemLanguage.ChineseTraditional;
+        }
+
+        private static SystemLanguage? EditorLanguage()
+        {
+            try
+            {
+                var type = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.LocalizationDatabase");
+                var prop = type?.GetProperty("currentEditorLanguage", BindingFlags.Public | BindingFlags.Static);
+                var value = prop?.GetValue(null, null);
+                if (value is SystemLanguage editorLanguage) return editorLanguage;
+            }
+            catch (Exception)
+            {
+                // 该版本没有这个 API，退回系统语言
+            }
+            return null;
+        }
 
         private static readonly Dictionary<string, string> ZhCn = new Dictionary<string, string>
         {
@@ -39,7 +66,7 @@ namespace RezonaLab.EngineBridge.Editor
 
         public static string T(string key)
         {
-            var d = Zh ? ZhCn : En;
+            var d = IsZh ? ZhCn : En;
             return d.TryGetValue(key, out var v) ? v : (En.TryGetValue(key, out var e) ? e : key);
         }
     }

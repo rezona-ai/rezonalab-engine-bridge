@@ -57,7 +57,8 @@ export function createExtension(deps: ExtensionDeps): Extension {
 
   const logError = (msg: string) => {
     extError = msg;
-    extLogs.push({ at: Date.now(), level: 'error', msg });
+    // 扩展自身（非内核）的错误统一走 server_error 码，reason 带原文。
+    extLogs.push({ at: Date.now(), level: 'error', code: 'server_error', args: { reason: msg }, msg });
     if (extLogs.length > 50) extLogs.splice(0, extLogs.length - 50);
   };
 

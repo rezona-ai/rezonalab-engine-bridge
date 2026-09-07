@@ -17,7 +17,7 @@
 
    ![Rezona Bridge for Cocos Creator 面板：Listening · Port 41700](images/cocos-panel-listening.png)
 
-6. 回到 Rezona Lab 工作台，顶栏「Engine Bridge」拨开 **Cocos** 开关；Chrome 会弹一次「连接本地网络设备」询问，点允许。徽标变成「已连接 · <工程名>」后，画布卡片上的「发送至 → Cocos」就能用了。
+6. 回到 Rezona Lab 工作台，画布左上角「Rezona Bridge」拨开 **Cocos** 开关；Chrome 会弹一次「连接本地网络设备」询问，点允许。徽标变成「已连接 · <工程名>」后，画布卡片上的「导出至 → Cocos」就能用了。
 
 编辑器启动即自动监听（面板里可关掉「自动启动」）；升级时重新导入新 zip 覆盖即可。
 

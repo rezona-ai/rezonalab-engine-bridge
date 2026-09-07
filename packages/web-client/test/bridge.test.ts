@@ -188,6 +188,15 @@ describe('web-client against real core-ts servers', () => {
     expect(connection.busy).toBe(false);
   });
 
+  it('throws ORIGIN_REJECTED when a plugin is listening but rejects the site origin', async () => {
+    // 真服务端，白名单里只有别的站点：升级放行、随即 4403。这必须和「没有引擎」区分开，
+    // 否则用户只看到「未找到编辑器」，不知道要去插件「高级」里加来源。
+    const engine = await startEngine({ originAllowlist: ['https://someone-else.example'] });
+    const err = await asError(connectEngine('cocos', baseOpts()));
+    expect(err.code).toBe('ORIGIN_REJECTED');
+    await engine.server.stop();
+  });
+
   it('throws NO_ENGINE when nothing listens on the range', async () => {
     expect((await asError(connectEngine('cocos', baseOpts()))).code).toBe('NO_ENGINE');
   });

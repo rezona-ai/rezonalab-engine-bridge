@@ -1,3 +1,4 @@
+import { MISSING_ORIGIN, type LogArgs, type LogCode } from './log-codes.js';
 import { promises as fs } from 'node:fs';
 import { basename, extname, join } from 'node:path';
 import type { EngineAdapter, ImportOutcome } from './adapter.js';
@@ -47,7 +48,7 @@ export interface SessionConfig {
 export interface SessionHooks {
   onStateChange?: (state: SessionState) => void;
   onProgress?: (info: ProgressInfo | null) => void;
-  onLog?: (level: LogLevel, msg: string) => void;
+  onLog?: (level: LogLevel, code: LogCode, args?: LogArgs) => void;
 }
 
 /**
@@ -83,7 +84,7 @@ export class Session {
   /** 连接建立后第一步：Origin 白名单。不通过直接 4403，不发任何帧。 */
   open(): boolean {
     if (!isAllowedOrigin(this.origin, this.config.originAllowlist)) {
-      this.log('warn', `拒绝来源 ${this.origin ?? '(缺 Origin 头)'}`);
+      this.log('warn', 'origin_rejected', { origin: this.origin ?? MISSING_ORIGIN.en });
       this.close(CloseCode.ORIGIN_REJECTED, 'origin not allowed');
       return false;
     }
@@ -104,7 +105,7 @@ export class Session {
     for (const ev of this.heartbeat.advance(deltaMs)) {
       if (ev === 'ping') this.send({ type: 'ping' });
       else {
-        this.log('warn', '心跳超时，关闭连接');
+        this.log('warn', 'heartbeat_timeout');
         this.close(CloseCode.HEARTBEAT_TIMEOUT, 'heartbeat timeout');
         return;
       }
@@ -149,7 +150,7 @@ export class Session {
       };
       this.send(ack);
       this.setState('ready');
-      this.log('info', `客户端已连接：${msg.client} ${msg.clientVersion}`);
+      this.log('info', 'client_connected', { client: msg.client, clientVersion: msg.clientVersion });
       return;
     }
 
@@ -183,7 +184,7 @@ export class Session {
     } catch (err) {
       if (err instanceof FrameOrderError) return this.fail(CloseCode.BAD_FRAME, err.message);
       if (err instanceof LimitError) return this.fail(CloseCode.LIMIT_EXCEEDED, err.message);
-      this.log('error', `写入分块失败：${(err as Error).message}`);
+      this.log('error', 'chunk_write_failed', { reason: (err as Error).message });
       return this.fail(CloseCode.BAD_FRAME, 'chunk write failed');
     }
     this.send({ type: 'chunk_ack', transferId: header.transferId, index: header.index });
@@ -205,14 +206,14 @@ export class Session {
       }
       if (rejection.kind === 'bad_frame') return this.fail(CloseCode.BAD_FRAME, rejection.message);
       this.sendError(rejection.code, rejection.message, msg.transferId);
-      this.log('warn', `拒绝传输 ${msg.fileName}：${rejection.message}`);
+      this.log('warn', 'transfer_rejected', { file: msg.fileName, reason: rejection.message });
       return;
     }
     const receiver = new TransferReceiver(msg, this.config.tmpDir);
     try {
       await receiver.open();
     } catch (err) {
-      this.log('error', `无法创建临时文件：${(err as Error).message}`);
+      this.log('error', 'tmp_create_failed', { reason: (err as Error).message });
       this.sendError('INTERNAL', 'cannot open temp file', msg.transferId);
       return;
     }
@@ -220,7 +221,7 @@ export class Session {
     this.currentKind = msg.kind;
     this.currentMeta = msg.meta;
     this.setState('receiving');
-    this.log('info', `开始接收 ${msg.fileName}（${msg.byteSize} 字节，${msg.chunkCount} 块）`);
+    this.log('info', 'receive_start', { file: msg.fileName, bytes: msg.byteSize, chunks: msg.chunkCount });
     this.hooks.onProgress?.({ transferId: msg.transferId, fileName: msg.fileName, percent: 0, stage: 'receiving' });
   }
 
@@ -231,7 +232,7 @@ export class Session {
     const receiver = this.receiver;
     const finished = await receiver.finish();
     if (!finished.ok) {
-      this.log('warn', `${receiver.fileName} 校验失败：${finished.reason}`);
+      this.log('warn', 'checksum_failed', { file: receiver.fileName, reason: finished.reason });
       this.finishTransfer({ type: 'import_result', transferId, ok: false, error: { code: 'CHECKSUM_MISMATCH', message: finished.reason } }, 'failed');
       return;
     }
@@ -254,7 +255,7 @@ export class Session {
     } catch (err) {
       await receiver.abort();
       const e = err instanceof BridgeError ? err : new BridgeError('INTERNAL', (err as Error).message);
-      this.log('warn', `${receiver.fileName} 落盘失败：${e.message}`);
+      this.log('warn', 'save_failed', { file: receiver.fileName, reason: e.message });
       this.finishTransfer({ type: 'import_result', transferId, ok: false, error: { code: e.code, message: e.message } }, 'failed');
       return;
     }
@@ -276,11 +277,11 @@ export class Session {
       );
     } catch (err) {
       const e = err instanceof BridgeError ? err : new BridgeError('IMPORT_FAILED', (err as Error).message);
-      this.log('error', `${receiver.fileName} 导入失败：${e.code} ${e.message}`);
+      this.log('error', 'import_failed', { file: receiver.fileName, code: e.code, reason: e.message });
       this.finishTransfer({ type: 'import_result', transferId, ok: false, error: { code: e.code, message: e.message } }, 'failed');
       return;
     }
-    this.log('info', `${receiver.fileName} 已导入：${outcome.savedPath}`);
+    this.log('info', 'imported', { file: receiver.fileName, path: outcome.savedPath });
     const result: Message = { type: 'import_result', transferId, ok: true, savedPath: outcome.savedPath };
     if (outcome.sceneNode) (result as { sceneNode?: string }).sceneNode = outcome.sceneNode;
     this.finishTransfer(result, 'done');
@@ -308,7 +309,7 @@ export class Session {
   }
 
   private async fail(code: number, reason: string): Promise<void> {
-    this.log('warn', `关闭连接（${code}）：${reason}`);
+    this.log('warn', 'connection_closed', { code, reason });
     await this.cleanupTransfer();
     this.close(code, reason);
   }
@@ -336,8 +337,8 @@ export class Session {
     this.hooks.onStateChange?.(state);
   }
 
-  private log(level: LogLevel, msg: string): void {
-    this.hooks.onLog?.(level, msg);
+  private log(level: LogLevel, code: LogCode, args?: LogArgs): void {
+    this.hooks.onLog?.(level, code, args);
   }
 }
 

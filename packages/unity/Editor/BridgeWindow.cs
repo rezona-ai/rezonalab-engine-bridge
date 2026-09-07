@@ -201,7 +201,7 @@ namespace RezonaLab.EngineBridge.Editor
                         var color = entry.Level == LogLevel.Error ? "#ff7b7b" : entry.Level == LogLevel.Warn ? "#ffb15c" : "#cfcfcf";
                         var tag = entry.Level == LogLevel.Error ? "E" : entry.Level == LogLevel.Warn ? "W" : "I";
                         sb.Append("<color=#8a8a8a>").Append(entry.At.ToString("HH:mm:ss")).Append("</color> <color=").Append(color).Append(">[")
-                          .Append(tag).Append("] ").Append(entry.Message.Replace("<", "&lt;")).Append("</color>\n");
+                          .Append(tag).Append("] ").Append(LogCodes.Render(entry.Code, entry.Args, L10n.IsZh).Replace("<", "&lt;")).Append("</color>\n");
                     }
                     EditorGUILayout.SelectableLabel(sb.ToString(), _log, GUILayout.ExpandHeight(true));
                 }

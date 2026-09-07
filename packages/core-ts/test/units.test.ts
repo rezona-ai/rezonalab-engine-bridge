@@ -202,14 +202,12 @@ describe('createBridgeServer over real ws', () => {
       else q.waiters.push(r);
     });
 
-  it('rejects a foreign origin at the handshake and closes 4400 for a client that skips hello', async () => {
+  it('closes a foreign origin with 4403 after the upgrade, and 4400 for a client that skips hello', async () => {
     const evil = connect('https://evil.example');
-    // verifyClient 在 101 之前拒绝：客户端拿到的是握手失败，而不是一条 4403 关闭帧
-    const outcome = await new Promise<string>((r) => {
-      evil.on('error', () => r('handshake-rejected'));
-      evil.on('close', (code) => r(`closed-${code}`));
-    });
-    expect(['handshake-rejected', 'closed-4403']).toContain(outcome);
+    // 必须是 101 之后的 4403：网页只能读到关闭码，握手阶段的 HTTP 状态它看不见。
+    // 允许「握手失败」会让这条测试对回归失明——正是这个漏洞让「来源被拒」显示成「未找到编辑器」。
+    await new Promise((r) => evil.on('open', r));
+    expect(await waitClose(evil)).toBe(4403);
     const rude = connect('https://lab.rezona.ai');
     await new Promise((r) => rude.on('open', r));
     rude.send(JSON.stringify({ type: 'ping' }));
@@ -245,7 +243,7 @@ describe('createBridgeServer over real ws', () => {
     expect(server.state).toBe('listening');
   });
 
-  it('a foreign-origin probe is rejected at the handshake and never evicts the live connection', async () => {
+  it('a foreign-origin probe gets 4403 and never evicts the live connection', async () => {
     const good = connect('https://lab.rezona.ai');
     await new Promise((r) => good.on('open', r));
     good.send(JSON.stringify({ type: 'hello', protocol: 1, client: 'test', clientVersion: '0' }));
@@ -253,12 +251,8 @@ describe('createBridgeServer over real ws', () => {
     expect(server.snapshot().connected).toBe(true);
 
     const evil = connect('https://evil.example');
-    // verifyClient 在 101 之前拒绝：ws 客户端看到的是握手失败（error），不是 4403 关闭帧
-    const outcome = await new Promise<string>((r) => {
-      evil.on('error', () => r('handshake-rejected'));
-      evil.on('close', (code) => r(`closed-${code}`));
-    });
-    expect(outcome === 'handshake-rejected' || outcome === 'closed-4403').toBe(true);
+    await new Promise((r) => evil.on('open', r));
+    expect(await waitClose(evil)).toBe(4403);
     await new Promise((r) => setTimeout(r, 50));
     expect(good.readyState).toBe(good.OPEN);
     expect(server.snapshot().connected).toBe(true);

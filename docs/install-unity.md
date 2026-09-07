@@ -8,7 +8,7 @@
 2. 左上角 **＋ → Add package from git URL…**，粘贴：
 
    ```
-   https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.6
+   https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.7
    ```
 
    Package Manager 解析要几十秒；装好后列表里显示 **Rezona Bridge for Unity**。
@@ -22,7 +22,7 @@
 
    黄条只在第一次收到 glb 且检测不到 glTFast 时出现，之后自动消失。
 
-6. 回到 Rezona Lab 工作台，顶栏「Engine Bridge」拨开 **Unity** 开关；Chrome 会弹一次「连接本地网络设备」询问，点允许。徽标「已连接 · <工程名>」后即可在卡片上「发送至 → Unity」。
+6. 回到 Rezona Lab 工作台，画布左上角「Rezona Bridge」拨开 **Unity** 开关；Chrome 会弹一次「连接本地网络设备」询问，点允许。徽标「已连接 · <工程名>」后即可在卡片上「导出至 → Unity」。
 
 升级：把 git URL 末尾的 tag 换成新版本号 再添加一次即可覆盖。改脚本触发域重载时服务端会自动重建，端口不变。
 
@@ -54,7 +54,7 @@ https://devlab.rezona.ai
 
 ## 常见故障
 
-### 1. 浏览器权限弹窗被拒绝了 / 顶栏一直「未找到引擎」
+### 1. 浏览器权限弹窗被拒绝了 / 网页一直「未找到引擎」
 
 Chrome 142 及以上首次连 `ws://127.0.0.1` 会弹「<站点> 想要连接本地网络上的设备」；拒绝后不再弹，网页显示「未能连接本地插件，可能是权限被拒绝」。
 

@@ -1,3 +1,4 @@
+import { MISSING_ORIGIN, renderLog, type LogArgs, type LogCode } from './log-codes.js';
 import { EventEmitter } from 'node:events';
 import type { Server as HttpServer } from 'node:http';
 import { tmpdir } from 'node:os';
@@ -61,11 +62,12 @@ export function createBridgeServer(config: BridgeServerConfig): BridgeServer {
   let lastError: string | null = null;
   let state: ServerState = 'stopped';
 
-  const log = (level: LogLevel, msg: string) => {
-    const entry: LogEntry = { at: Date.now(), level, msg };
+  const log = (level: LogLevel, code: LogCode, args?: LogArgs) => {
+    // msg 只是英文兜底（控制台/假引擎），面板要读 code + args 自己渲染。
+    const entry: LogEntry = { at: Date.now(), level, code, args, msg: renderLog(code, args, 'en') };
     logs.push(entry);
     if (logs.length > MAX_LOG_LINES) logs.splice(0, logs.length - MAX_LOG_LINES);
-    if (level === 'error') lastError = msg;
+    if (level === 'error') lastError = entry.msg;
     emitter.emit('log', entry);
   };
   const setState = (next: ServerState) => {
@@ -94,14 +96,16 @@ export function createBridgeServer(config: BridgeServerConfig): BridgeServer {
   };
 
   const onConnection = (ws: WebSocket, origin: string | undefined) => {
-    // verifyClient 已在握手阶段拒绝过一次；这里再挡一道，保证任何路径下都不会为了一个非法来源踢掉现有合法连接。
+    // 故意等到升级完成后才拒绝：浏览器的 WebSocket 接口读不到握手阶段的 HTTP 状态码，
+    // 握手前拒绝会让「来源不在白名单」和「端口没人监听」在网页侧完全同形。升级后用 4403 关闭，
+    // 网页就能拿到确定信号并提示去插件「高级」里加来源。不发任何帧、不碰既有连接。
     if (!isAllowedOrigin(origin, originAllowlist)) {
-      log('warn', `拒绝来源 ${origin ?? '(缺 Origin 头)'}`);
+      log('warn', 'origin_rejected', { origin: origin ?? MISSING_ORIGIN.en });
       ws.close(CloseCode.ORIGIN_REJECTED, 'origin not allowed');
       return;
     }
     if (current?.session.isBusy) {
-      log('warn', '已有传输进行中，拒绝新连接');
+      log('warn', 'busy_rejected');
       ws.close(CloseCode.BUSY, 'busy');
       return;
     }
@@ -153,7 +157,7 @@ export function createBridgeServer(config: BridgeServerConfig): BridgeServer {
     ws.on('message', (data, isBinary) => {
       const buf = Array.isArray(data) ? Buffer.concat(data) : Buffer.isBuffer(data) ? data : Buffer.from(data as ArrayBuffer);
       const p = isBinary ? session.handleBinary(buf) : session.handleText(buf);
-      p.catch((err: unknown) => log('error', `处理帧时异常：${(err as Error).message}`));
+      p.catch((err: unknown) => log('error', 'frame_error', { reason: (err as Error).message }));
     });
     ws.on('close', () => {
       if (current !== entry) return;
@@ -164,7 +168,7 @@ export function createBridgeServer(config: BridgeServerConfig): BridgeServer {
         recomputeState();
       });
     });
-    ws.on('error', (err) => log('warn', `连接错误：${err.message}`));
+    ws.on('error', (err) => log('warn', 'connection_error', { reason: err.message }));
   };
 
   return {
@@ -180,21 +184,16 @@ export function createBridgeServer(config: BridgeServerConfig): BridgeServer {
       const listened = await listenOnFirstFreePort(config.portRange);
       http = listened.server;
       port = listened.port;
-      // Origin 白名单必须在握手阶段（HTTP 101 之前）拒绝：非法来源连 WebSocket 都建不起来，更不可能影响现有连接。
+      // Origin 白名单不在握手阶段拒绝——见 onConnection 上方注释与 protocol/spec.md 第 2 节。
       wss = new WebSocketServer({
         server: http,
         path: WS_PATH,
         maxPayload: limits.chunkBytes + 4 + 1024 + 16,
-        verifyClient: (info: { origin: string }) => {
-          const ok = isAllowedOrigin(info.origin || undefined, originAllowlist);
-          if (!ok) log('warn', `拒绝来源 ${info.origin || '(缺 Origin 头)'}`);
-          return ok;
-        },
       });
       wss.on('connection', (ws, req) => onConnection(ws, req.headers.origin));
-      wss.on('error', (err) => log('error', `服务端错误：${err.message}`));
+      wss.on('error', (err) => log('error', 'server_error', { reason: err.message }));
       lastError = null;
-      log('info', `监听中 127.0.0.1:${port}${WS_PATH}`);
+      log('info', 'listening', { port, path: WS_PATH });
       recomputeState();
       return port;
     },
@@ -208,7 +207,7 @@ export function createBridgeServer(config: BridgeServerConfig): BridgeServer {
       if (w) await new Promise<void>((res) => w.close(() => res()));
       if (h) await new Promise<void>((res) => h.close(() => res()));
       progress = null;
-      log('info', '已停止');
+      log('info', 'stopped');
       recomputeState();
     },
     snapshot(): ServerSnapshot {

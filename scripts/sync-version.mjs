@@ -79,4 +79,35 @@ if (existsSync(enginesFile)) {
   console.log('[sync-version] skip packages/web-client/src/engines.ts（不存在）');
 }
 
+// Unity 插件把版本内置成一个 const（hello_ack 的 pluginVersion 取自它）。
+// 这一处此前不在同步范围里，于是每次发版都要手动补一遍，漏了就发出一个自称旧版本的插件。
+const bootstrapFile = join(root, 'packages/unity/Editor/Bootstrap.cs');
+// 安装文档里的 git URL 带 tag，读者照着粘的就是它，漏改等于把人指到旧版本。
+const unityDoc = join(root, 'docs/install-unity.md');
+const literals = [
+  { file: bootstrapFile, label: 'packages/unity/Editor/Bootstrap.cs PluginVersion', re: /(const string PluginVersion = ")([^"]*)(")/g },
+  { file: unityDoc, label: 'docs/install-unity.md 的 git URL tag', re: /(rezonalab-engine-bridge\.git\?path=packages\/unity#v)([^\s`]*)()/g },
+];
+for (const { file, label, re } of literals) {
+  if (!existsSync(file)) {
+    console.log(`[sync-version] skip ${label}（文件不存在）`);
+    continue;
+  }
+  const raw = readFileSync(file, 'utf8');
+  let hits = 0;
+  let edits = 0;
+  const next = raw.replace(re, (_all, pre, old, post) => {
+    hits += 1;
+    if (old !== version) edits += 1;
+    return `${pre}${version}${post}`;
+  });
+  if (hits === 0) console.log(`[sync-version] skip ${label}（没找到字面量）`);
+  else if (edits === 0) console.log(`[sync-version] ok   ${label} 已是 ${version}（${hits} 处）`);
+  else {
+    writeFileSync(file, next);
+    console.log(`[sync-version] set  ${label} → ${version}（改 ${edits}/${hits} 处）`);
+    changed += 1;
+  }
+}
+
 console.log(`[sync-version] 完成，版本 ${version}，改动 ${changed} 个文件`);
