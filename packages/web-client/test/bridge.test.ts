@@ -216,6 +216,35 @@ describe('web-client against real core-ts servers', () => {
     expect((await asError(connectEngine('cocos', { createSocket, portRange: RANGE }))).code).toBe('NO_ENGINE');
   });
 
+  // 时序猜不出「被拦」还是「没开」：两者在回环上都是几毫秒 error。Permissions API 给得出答案时就不猜。
+  it('trusts the LNA permission over the timing heuristic', async () => {
+    const chrome = 'Mozilla/5.0 (Macintosh) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36';
+    // denied：确定是权限，报确定的 LNA_DENIED 而不是「疑似」
+    expect(
+      (await asError(connectEngine('cocos', { createSocket, portRange: RANGE, userAgent: chrome, queryLnaPermission: async () => 'denied' }))).code,
+    ).toBe('LNA_DENIED');
+    // granted：即便所有端口都瞬间失败，也只能是没引擎在跑 —— 这正是 2026-09-07 被误报成权限问题的那一类
+    const instantFail = (): WebSocketLike => {
+      const listeners: Record<string, Array<(ev: unknown) => void>> = {};
+      const sock: WebSocketLike = {
+        binaryType: 'arraybuffer', readyState: 3, send: () => undefined, close: () => undefined,
+        addEventListener: (type: string, cb: (ev: unknown) => void) => void (listeners[type] ??= []).push(cb),
+      };
+      queueMicrotask(() => {
+        for (const cb of listeners['error'] ?? []) cb({});
+        for (const cb of listeners['close'] ?? []) cb({ code: 1006, reason: '' });
+      });
+      return sock;
+    };
+    expect(
+      (await asError(connectEngine('cocos', { createSocket: instantFail, portRange: RANGE, userAgent: chrome, queryLnaPermission: async () => 'granted' }))).code,
+    ).toBe('NO_ENGINE');
+    // 查询自身抛错 → 当作 unknown → 退回时序启发式（Chromium 142+ 上仍报疑似）
+    expect(
+      (await asError(connectEngine('cocos', { createSocket: instantFail, portRange: RANGE, userAgent: chrome, queryLnaPermission: async () => { throw new Error('boom'); } }))).code,
+    ).toBe('LNA_DENIED_SUSPECTED');
+  });
+
   /** 裸 ws 服务端 stub：二进制帧一律回 chunk_ack，文本帧按 hello / 其它分发。用于 core-ts 不会产生的对端行为。 */
   const stubServer = (port: number, onHello: (ws: WebSocket, hello: Record<string, unknown>) => void, onOther?: (ws: WebSocket, msg: Record<string, unknown>) => void) =>
     new Promise<WebSocketServer>((resolve) => {

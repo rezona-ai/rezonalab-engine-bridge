@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { CLIENT_VERSION, ENGINES, getEngine } from '../src/engines.js';
 import { compareSemver, isVersionAtLeast } from '../src/semver.js';
 import { sha256Hex } from '../src/sha256.js';
-import { LNA_EXPLAINED_KEY, explainLnaDenied, hasSeenLnaExplainer, isChromium142Plus, isSafari, markLnaExplained, supportsBridge } from '../src/lna.js';
+import { LNA_EXPLAINED_KEY, LNA_PERMISSION_NAME, explainLnaDenied, hasSeenLnaExplainer, isChromium142Plus, isSafari, markLnaExplained, queryLnaPermission, supportsBridge } from '../src/lna.js';
 
 const HEADLESS_147 = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36';
 const CHROME_141 = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
@@ -87,3 +87,27 @@ describe('lna helpers', () => {
     expect(() => markLnaExplained(throwing)).not.toThrow();
   });
 });
+
+describe('queryLnaPermission', () => {
+  const withNavigator = async (permissions: unknown) => {
+    const g = globalThis as { navigator?: unknown };
+    const had = 'navigator' in g; const prev = g.navigator;
+    Object.defineProperty(g, 'navigator', { value: { permissions }, configurable: true, writable: true });
+    try { return await queryLnaPermission(); } finally {
+      if (had) Object.defineProperty(g, 'navigator', { value: prev, configurable: true, writable: true });
+      else delete (g as Record<string, unknown>).navigator;
+    }
+  };
+
+  it('reports the browser state and degrades to unknown when it cannot ask', async () => {
+    expect(await withNavigator({ query: async ({ name }: { name: string }) => { expect(name).toBe(LNA_PERMISSION_NAME); return { state: 'denied' }; } })).toBe('denied');
+    expect(await withNavigator({ query: async () => ({ state: 'prompt' }) })).toBe('prompt');
+    expect(await withNavigator({ query: async () => ({ state: 'granted' }) })).toBe('granted');
+    // 不认这个权限名的浏览器会抛；没有 permissions 的更早一步就没法问 —— 都算 unknown，交给时序启发式
+    expect(await withNavigator({ query: async () => { throw new TypeError('unknown permission'); } })).toBe('unknown');
+    expect(await withNavigator(undefined)).toBe('unknown');
+    // 认得 API 但回了个没见过的状态，同样不敢当结论用
+    expect(await withNavigator({ query: async () => ({ state: 'weird' }) })).toBe('unknown');
+  });
+});
+

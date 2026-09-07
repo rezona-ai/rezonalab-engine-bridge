@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.5] - 2026-09-07
+
+- 仅版本对齐（本次改动在网页客户端：本地网络权限判定与安装入口）。
+
 ## [0.1.4] - 2026-09-04
 
 - 新增 `video` 类型（mp4 / webm）：只导入不实例化；`formats` 加 `fbx`（走 Unity 自带 ModelImporter，不需要 glTFast）。glTFast 缺包检查只对 glb / gltf 生效。
