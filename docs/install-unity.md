@@ -4,27 +4,54 @@
 
 ## 安装步骤
 
-1. 打开 Unity 工程，菜单 **Window → Package Manager**。
-2. 左上角 **＋ → Add package from git URL…**，粘贴：
+推荐用 tarball：这是 Unity 自带的、基于文件的安装入口，保留完整的包语义（版本、清单、干净卸载），
+也不要求你的机器装了 git。
 
-   ```
-   https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.7
-   ```
+1. 下载 **rezona-bridge-unity-<版本>.tgz**（Rezona Lab 工作台的 Rezona Bridge 面板里，Unity 那行点「下载」；
+   或从 [Releases](https://github.com/rezona-ai/rezonalab-engine-bridge/releases) 取）。
+2. **把 tgz 放进你工程的 `Packages/` 目录**。见下面「为什么要放进工程里」。
+3. 打开 Unity 工程，菜单 **Window → Package Manager**。
+4. 左上角 **＋ → Install package from tarball…**，选中刚放好的 tgz。
 
-   Package Manager 解析要几十秒；装好后列表里显示 **Rezona Bridge for Unity**。
+   文件选择框只认 `.tgz` 后缀，别改名。
 
-3. 等待解析完成，列表里出现 **Rezona Bridge**（`com.rezonalab.engine-bridge`）。
-4. 菜单 **Tools → Rezona Bridge** 打开窗口，看到「监听中 · 端口 41720」即安装完成。
+5. 装好后列表里出现 **Rezona Bridge for Unity**（`com.rezonalab.engine-bridge`）。
+6. 菜单 **Tools → Rezona Bridge** 打开窗口，看到「监听中 · 端口 41720」即安装完成。
 
    ![Rezona Bridge for Unity 窗口：监听中 · 端口 41720](images/unity-window-listening.png)
 
-5. 要导入 glb 需要 **glTFast**。窗口检测到缺包时会出黄条「需要 glTFast」并给一个「添加 glTFast」按钮，点它相当于在 Package Manager 里添加 `com.unity.cloud.gltfast`。
+7. 要导入 glb 需要 **glTFast**。窗口检测到缺包时会出黄条「需要 glTFast」并给一个「添加 glTFast」按钮，
+   点它相当于在 Package Manager 里添加 `com.unity.cloud.gltfast`。
 
    黄条只在第一次收到 glb 且检测不到 glTFast 时出现，之后自动消失。
 
-6. 回到 Rezona Lab 工作台，画布左上角「Rezona Bridge」拨开 **Unity** 开关；Chrome 会弹一次「连接本地网络设备」询问，点允许。徽标「已连接 · <工程名>」后即可在卡片上「导出至 → Unity」。
+8. 回到 Rezona Lab 工作台，画布左上角「Rezona Bridge」拨开 **Unity** 开关；Chrome 会弹一次「连接本地网络设备」询问，点允许。徽标「已连接 · <工程名>」后即可在卡片上「导出至 → Unity」。
 
-升级：把 git URL 末尾的 tag 换成新版本号 再添加一次即可覆盖。改脚本触发域重载时服务端会自动重建，端口不变。
+### 为什么要放进工程里
+
+Unity 不会把 tarball 的内容复制进工程，它在 `Packages/manifest.json` 里记下这个文件的路径，
+解压产物放在 `Library/PackageCache/`。实测（Unity 6000.0.80f1）：
+
+| 情况 | 结果 |
+|---|---|
+| 装完删掉 tgz，重开编辑器 | 正常，走 `Library` 缓存 |
+| 删掉 tgz 且 `Library` 被清（换机器、同事新克隆、Reimport All） | 失败，报「Tarball package … cannot be found at path」 |
+| tgz 放在工程 `Packages/` 内、清单里是相对路径，`Library` 被清 | 正常 |
+
+放进 `Packages/` 之后清单里记的是相对路径，工程带着 tgz 一起走，谁克隆都能解析。
+
+### 备选：UPM git 地址
+
+如果你的机器装了 git 并在 PATH 里，也可以在 **＋ → Add package from git URL…** 里粘：
+
+```
+https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.8
+```
+
+升级时把末尾 tag 换成新版本再添加一次即可。**没装 git 的机器用不了这条路**，UPM 会报一句与 git 无关的错。
+
+升级 tarball 装法：下载新版 tgz 放进 `Packages/`，在 Package Manager 里重新 Install package from tarball 选新文件，
+然后删掉旧的 tgz。改脚本触发域重载时服务端会自动重建，端口不变。
 
 ## 窗口字段
 
