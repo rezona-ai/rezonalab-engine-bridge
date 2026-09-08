@@ -23,6 +23,18 @@ describe('engines registry', () => {
     expect(getEngine('cocos').installDocUrl).toBe('https://github.com/rezona-ai/rezonalab-engine-bridge/blob/main/docs/install-cocos.md');
     expect(getEngine('unity').installDocUrl).toBe('https://github.com/rezona-ai/rezonalab-engine-bridge/blob/main/docs/install-unity.md');
   });
+
+  it('every supported engine installs from a downloadable release asset named for the current version', () => {
+    // 两个引擎都必须是可下载物。Unity 曾经给的是 UPM git 地址,面板上那颗「安装」按钮点下去
+    // 只是复制一段文本,与字面承诺不符;而且 UPM 解析 git 依赖要求本机装了 git。
+    // 这条同时钉住文件名:名字对不上就下到一个 404,而 404 在按钮上是看不出来的。
+    const base = `https://github.com/rezona-ai/rezonalab-engine-bridge/releases/download/v${CLIENT_VERSION}`;
+    expect(getEngine('cocos').install).toEqual({ kind: 'download', fileName: `rezona-bridge-cocos-${CLIENT_VERSION}.zip`, url: `${base}/rezona-bridge-cocos-${CLIENT_VERSION}.zip` });
+    expect(getEngine('unity').install).toEqual({ kind: 'download', fileName: `rezona-bridge-unity-${CLIENT_VERSION}.tgz`, url: `${base}/rezona-bridge-unity-${CLIENT_VERSION}.tgz` });
+    // UPM 的文件选择框只认 .tgz 后缀,换成 .tar.gz 会在对话框里根本选不中
+    expect(getEngine('unity').install?.fileName.endsWith('.tgz')).toBe(true);
+    for (const e of ENGINES.filter((x) => !x.supported)) expect(e.install).toBeUndefined();
+  });
 });
 
 describe('semver compare', () => {

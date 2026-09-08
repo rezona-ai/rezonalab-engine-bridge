@@ -57,7 +57,7 @@ npm run dev:fake-engine -- --origin http://localhost:3000   # 起假引擎在 41
 
 ## 发布
 
-版本号单一来源是根 `package.json`。发版流程：改版本 → `npm run sync:version` → 提交 → 打 tag `v<ver>` → CI 产出 Cocos zip；Unity 用户改 git URL 的 tag 升级。
+版本号单一来源是根 `package.json`。发版流程：改版本 → `npm run sync:version` → 提交 → 打 tag `v<ver>`（**必须打在 squash 后的 main 提交上**）→ `gh release create` 挂上两个产物：Cocos 的 zip（`npm run build:cocos`）与 Unity 的 UPM tarball（`npm run build:unity`）。CI 每次也会打这两个产物，所以「发版时才发现打不出来」不会发生。
 
 ## License
 

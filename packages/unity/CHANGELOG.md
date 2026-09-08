@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.8] - 2026-09-08
+
+- 安装方式改为 **UPM tarball 下载**：Release 里多一个 `rezona-bridge-unity-<版本>.tgz`，
+  在 Package Manager 的「＋ → Install package from tarball」里选中即可。
+  此前只给 UPM git 地址，网页上那颗「安装」按钮点下去只是复制一段文本；
+  而且 UPM 解析 git 依赖要求本机装了 git 并在 PATH 里，没装的人只会拿到一句与 git 无关的报错。
+  git 地址仍在安装文档里作为备选。
+
 ## [0.1.7] - 2026-09-07
 
 - Origin 拒绝改为**升级握手之后**关 4403，不再在 HTTP 101 之前拒绝：浏览器读不到握手状态码，

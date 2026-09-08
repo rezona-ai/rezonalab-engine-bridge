@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   test-and-build:
-    name: typecheck · test · build:cocos
+    name: typecheck · test · build:cocos · build:unity
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +29,14 @@ jobs:
         with:
           name: rezona-bridge-cocos
           path: dist/*.zip
+          if-no-files-found: error
+      # UPM tarball 是 Unity 侧的发行物；在这里打一次是为了让「发版时才发现打不出来」不可能发生
+      - run: npm run build:unity
+      - name: Upload Unity UPM tarball
+        uses: actions/upload-artifact@v4
+        with:
+          name: rezona-bridge-unity
+          path: dist/*.tgz
           if-no-files-found: error
 
   break-verify:

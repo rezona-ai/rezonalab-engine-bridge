@@ -1,6 +1,6 @@
 {
   "name": "rezonalab-engine-bridge",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "private": true,
   "description": "Rezona Lab Engine Bridge: push generated assets from the web canvas straight into a running Cocos Creator / Unity project over localhost WebSocket.",
   "license": "MIT",
@@ -23,7 +23,8 @@
     "sync:version": "node scripts/sync-version.mjs",
     "typecheck": "node packages/core-ts/scripts/embed-schema.mjs && tsc -b packages/core-ts packages/web-client",
     "lint": "eslint packages --ext .ts",
-    "break:verify": "node scripts/break-verify.mjs"
+    "break:verify": "node scripts/break-verify.mjs",
+    "build:unity": "node scripts/build-unity-tarball.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
