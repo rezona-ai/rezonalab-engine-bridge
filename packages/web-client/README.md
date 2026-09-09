@@ -5,7 +5,7 @@ Rezona Engine Bridge 的浏览器端客户端：探测本机引擎插件、保�
 - 网页是 WebSocket 客户端，插件是只听 `127.0.0.1` 的服务端（协议见仓库 `protocol/spec.md`）。
 - 一次只保持一个引擎的连接；掉线不自动重连，由用户重新拨开开关。
 - 同一连接上同一时刻只允许一个 `send`，第二个立即抛 `BUSY`。
-- 插件只放行白名单 Origin（`https://lab.rezona.ai`、`https://stalab.rezona.ai`、`https://devlab.rezona.ai`，开发者可在插件面板追加 `http://localhost:*`）；不在白名单的页面探测结果就是 `NO_ENGINE`。
+- 插件只放行白名单 Origin（`https://rezona.ai`、`https://lab.rezona.ai`、`https://stalab.rezona.ai`、`https://devlab.rezona.ai`，开发者可在插件面板追加 `http://localhost:*`）；不在白名单的页面会在升级握手后被关 4403，客户端报 `ORIGIN_REJECTED`。
 
 ## 用法
 

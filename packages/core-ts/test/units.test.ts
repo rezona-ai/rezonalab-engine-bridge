@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -6,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { WebSocket } from 'ws';
 import { encodeBinary, parseBinary, parseText } from '../src/framing.js';
 import { Heartbeat } from '../src/heartbeat.js';
-import { isAllowedOrigin, normalizeOrigin } from '../src/origin.js';
+import { DEFAULT_ORIGIN_ALLOWLIST, isAllowedOrigin, normalizeOrigin } from '../src/origin.js';
 import { PortsExhaustedError, listenOnFirstFreePort } from '../src/ports.js';
 import { TransferReceiver, uniquePath, validateBegin } from '../src/receiver.js';
 import { createBridgeServer, type BridgeServer } from '../src/server.js';
@@ -15,6 +17,8 @@ import { sanitizeZipEntryName, isSymlinkEntry } from '../src/zipsafe.js';
 
 const LIMITS = { chunkBytes: 16, maxFileBytes: 4096, maxChunks: 256 };
 const sha = (b: Buffer) => createHash('sha256').update(b).digest('hex');
+
+const ROOT = join(import.meta.dirname, '..', '..', '..');
 
 describe('origin', () => {
   it('matches scheme+host+port exactly and rejects missing header', () => {
@@ -28,6 +32,24 @@ describe('origin', () => {
     expect(isAllowedOrigin(undefined, list)).toBe(false);
     expect(isAllowedOrigin('null', list)).toBe(false);
     expect(normalizeOrigin('https://a.b/path')).toBeNull();
+  });
+
+  it('ships every environment the product is served from', () => {
+    // 插件是用户本机安装物，发出去收不回来：名单漏一个域，那个环境的每个用户都被拒，
+    // 而修复要等他们各自重装插件。生产前端 2026-09 从 lab.rezona.ai 迁到 rezona.ai，
+    // 旧域仍直连 /game/*，所以两个都得在。
+    for (const origin of ['https://rezona.ai', 'https://lab.rezona.ai', 'https://stalab.rezona.ai', 'https://devlab.rezona.ai']) {
+      expect(isAllowedOrigin(origin, DEFAULT_ORIGIN_ALLOWLIST), `${origin} 不在默认白名单里`).toBe(true);
+    }
+    expect(isAllowedOrigin('https://evil.example', DEFAULT_ORIGIN_ALLOWLIST)).toBe(false);
+  });
+
+  it('the Unity mirror lists exactly the same origins in the same order', () => {
+    // 两份名单各写各的就会漂，而漂出来的形态是「Cocos 能用、Unity 被拒」这种说不清的差异
+    const cs = readFileSync(join(ROOT, 'packages', 'unity', 'Editor', 'Core', 'Origin.cs'), 'utf8');
+    const block = cs.slice(cs.indexOf('DefaultAllowlist'), cs.indexOf('};', cs.indexOf('DefaultAllowlist')));
+    const mirrored = [...block.matchAll(/"(https?:\/\/[^"]+)"/g)].map((m) => m[1]);
+    expect(mirrored).toEqual([...DEFAULT_ORIGIN_ALLOWLIST]);
   });
 });
 

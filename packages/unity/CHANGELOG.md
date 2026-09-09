@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.9] - 2026-09-09
+
+- 默认来源白名单加入生产域 `https://rezona.ai`。生产前端已从 `lab.rezona.ai` 迁到该域，
+  旧域仍直连 `/game/*`，两个都放行。**没有这一版，生产环境的每个用户都会被插件拒绝。**
+
 ## [0.1.8] - 2026-09-08
 
 - 安装方式改为 **UPM tarball 下载**：Release 里多一个 `rezona-bridge-unity-<版本>.tgz`，

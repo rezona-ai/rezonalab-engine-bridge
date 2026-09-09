@@ -13,7 +13,7 @@ Cocos Creator 3.8.5+ 扩展：在编辑器里起一个只监听 `127.0.0.1` 的 
 - 顶部：状态徽标（已停止 / 监听中 / 已连接 / 传输中 / 出错）、端口、启动 / 停止按钮。
 - 工程名、保存目录（固定 `assets/RezonaAssets`，只读）、当前文件与进度。
 - 日志（最近 200 行，可清空）。
-- 「高级」：追加允许连接的网页来源（一行一个，如 `http://localhost:5173`），保存后服务端自动重启生效。默认白名单为 `https://lab.rezona.ai`、`https://stalab.rezona.ai`、`https://devlab.rezona.ai`。
+- 「高级」：追加允许连接的网页来源（一行一个，如 `http://localhost:5173`），保存后服务端自动重启生效。默认白名单为 `https://rezona.ai`、`https://lab.rezona.ai`、`https://stalab.rezona.ai`、`https://devlab.rezona.ai`。
 
 ## 端口
 

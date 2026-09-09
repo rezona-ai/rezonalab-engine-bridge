@@ -19,7 +19,7 @@ https://github.com/rezonalab/rezonalab-engine-bridge.git?path=packages/unity
 
 - 编辑器启动即自动监听；`Tools → Rezona Bridge` 打开面板可停止（偏好会记住）。
 - 在 Rezona Lab 工作台顶栏拨开 Unity 开关，卡片「发送至 → Unity」即可。
-- 「高级」里可追加允许的网页来源（如 `http://localhost:5173`），默认只接受 `https://lab.rezona.ai`、
+- 「高级」里可追加允许的网页来源（如 `http://localhost:5173`），默认只接受 `https://rezona.ai`、`https://lab.rezona.ai`、
   `https://stalab.rezona.ai`、`https://devlab.rezona.ai`。
 
 ## 结构
