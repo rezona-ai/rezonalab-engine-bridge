@@ -10,9 +10,14 @@ namespace RezonaLab.EngineBridge.Editor
     /// </summary>
     public static class Origin
     {
-        /// <summary>默认允许的网页来源：三套 lab 环境。开发者可在面板「高级」追加 localhost 一类地址。</summary>
+        /// <summary>
+        /// 默认允许的网页来源。开发者可在面板「高级」追加 localhost 一类地址。
+        /// rezona.ai 是生产前端迁移后的域名，lab.rezona.ai 是仍直连 /game/* 的旧域，过渡期都放行。
+        /// 与 core-ts 的 DEFAULT_ORIGIN_ALLOWLIST 同源，一致性由测试保证。
+        /// </summary>
         public static readonly string[] DefaultAllowlist =
         {
+            "https://rezona.ai",
             "https://lab.rezona.ai",
             "https://stalab.rezona.ai",
             "https://devlab.rezona.ai",

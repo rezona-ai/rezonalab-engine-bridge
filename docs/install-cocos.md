@@ -41,6 +41,7 @@
 插件只接受来自以下网页来源的连接（浏览器保证页面脚本改不了 Origin 头，这就是「随机网页写你工程」的唯一也是足够的闸）：
 
 ```
+https://rezona.ai
 https://lab.rezona.ai
 https://stalab.rezona.ai
 https://devlab.rezona.ai

@@ -34,6 +34,7 @@
 默认白名单：
 
 ```
+https://rezona.ai
 https://lab.rezona.ai
 https://stalab.rezona.ai
 https://devlab.rezona.ai

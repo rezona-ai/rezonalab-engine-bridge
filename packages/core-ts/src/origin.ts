@@ -1,5 +1,12 @@
-/** 默认允许的网页来源：三套 lab 环境。开发者可在插件面板追加 localhost 一类地址。 */
+/**
+ * 默认允许的网页来源。开发者可在插件面板追加 localhost 一类地址。
+ *
+ * `rezona.ai` 是生产前端**迁移后**的域名；`lab.rezona.ai` 是迁移前的旧域，它仍直连 `/game/*`，
+ * 过渡期两个都得放行。漏掉新域会让每个生产用户都被插件拒绝——插件是用户本机安装物，
+ * 发出去就收不回来，所以这份名单要先于前端放量。
+ */
 export const DEFAULT_ORIGIN_ALLOWLIST: readonly string[] = [
+  'https://rezona.ai',
   'https://lab.rezona.ai',
   'https://stalab.rezona.ai',
   'https://devlab.rezona.ai',
