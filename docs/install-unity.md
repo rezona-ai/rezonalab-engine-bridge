@@ -45,7 +45,7 @@ Unity 不会把 tarball 的内容复制进工程，它在 `Packages/manifest.jso
 如果你的机器装了 git 并在 PATH 里，也可以在 **＋ → Add package from git URL…** 里粘：
 
 ```
-https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.9
+https://github.com/rezona-ai/rezonalab-engine-bridge.git?path=packages/unity#v0.1.10
 ```
 
 升级时把末尾 tag 换成新版本再添加一次即可。**没装 git 的机器用不了这条路**，UPM 会报一句与 git 无关的错。

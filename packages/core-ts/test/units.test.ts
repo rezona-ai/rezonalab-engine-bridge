@@ -44,6 +44,14 @@ describe('origin', () => {
     expect(isAllowedOrigin('https://evil.example', DEFAULT_ORIGIN_ALLOWLIST)).toBe(false);
   });
 
+  it('the web client mirror lists exactly the same origins in the same order', () => {
+    // web-client 零依赖、不引本包，所以名单在那边也有一份；漂了就是「网页以为放行、插件实际拒绝」
+    const ts = readFileSync(join(ROOT, 'packages', 'web-client', 'src', 'origins.ts'), 'utf8');
+    const block = ts.slice(ts.indexOf('DEFAULT_ORIGIN_ALLOWLIST'));
+    const mirrored = [...block.matchAll(/'(https?:\/\/[^']+)'/g)].map((m) => m[1]);
+    expect(mirrored).toEqual([...DEFAULT_ORIGIN_ALLOWLIST]);
+  });
+
   it('the Unity mirror lists exactly the same origins in the same order', () => {
     // 两份名单各写各的就会漂，而漂出来的形态是「Cocos 能用、Unity 被拒」这种说不清的差异
     const cs = readFileSync(join(ROOT, 'packages', 'unity', 'Editor', 'Core', 'Origin.cs'), 'utf8');

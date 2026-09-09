@@ -1,4 +1,5 @@
 export * from './errors.js';
+export * from './origins.js';
 export * from './engines.js';
 export * from './semver.js';
 export * from './sha256.js';
